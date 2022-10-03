@@ -1,0 +1,6 @@
+#+TITLE: Concordia Unite
+ #+AUTHOR: Ian Kollipara
+ #+DAte:[2022-09-26 Mon]
+ 
+* Introduction
+This is an application to connect LCMS teachers to calling bodies, following all LCMS bylaws.
