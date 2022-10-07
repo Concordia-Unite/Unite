@@ -10,169 +10,123 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { useState } from "react";
 import {
-    AppShell,
-    Title,
-    Input,
-    Select,
-    Stepper,
-    Group,
-    NativeSelect,
-    Switch,
+  AppShell,
+  Title,
+  Stepper,
+  Group,
+  createStyles,
+  Button,
 } from "@mantine/core";
-import { DatePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import Header from "@/components/header";
 import { useSession } from "next-auth/react";
-import {
-    IconAt,
-    IconPhone,
-    IconHome,
-    IconRoad,
-    IconSchool,
-    IconCalendarEvent,
-} from "@tabler/icons";
 import client from "@/lib/prismadb";
-import InputMask from "react-input-mask";
+import CreateCandidateStepOne from "@/components/create-candidate/create-candidate-step-one";
+import { CandidateRegistrationForm } from "@/lib/candidate-form";
+import CreateCandidateSecondStep from "@/components/create-candidate/create-candidate-step-two";
+import CreateCandidateThirdStep from "@/components/create-candidate/create-candidate-step-three";
+import { CreateCandidateFourthStep } from "@/components/create-candidate/create-candidate-step-four";
+import { PreviousStepButton } from "@/components/create-candidate/previousStepButton";
 
-const numberOfSteps = 5;
+const NUMBER_OF_STEPS = 4;
 
-const CreateCandidate: NextPage = (props: {
-    data: { sid: string; name: string }[];
-}) => {
-    const { data, status } = useSession();
-    const [active, setActive] = useState(0);
-    const nextStep = () =>
-        setActive((current) => (current < numberOfSteps ? current + 1 : current));
-    const prevStep = () =>
-        setActive((current) => (current > 0 ? current - 1 : current));
+const useStyles = createStyles((theme) => ({
+  formPadding: {
+    paddingLeft: "0em",
+    paddingRight: "0em",
 
-    const schools = props.data;
+    [`@media (max-width: ${theme.breakpoints.lg}px`]: {
+      paddingLeft: "5em",
+      paddingRight: "5em",
+    },
+  },
+}));
 
-    const candidateForm = useForm({
-        initialValues: {
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@gmail.com",
-            phoneNumber: "",
-            isMarried: false,
-            wasRostered: false,
-            addressHouseNumber: 0,
-            addressStreet: "",
-            addressState: "",
-            addressZipCode: "",
-            addressCountry: "United States",
-            educationDegree: "",
-            educationIsGraduated: false,
-            educationGraduationDate: null,
-            educationAt: (schools.length && schools[0].name) || "Unknown School",
-        },
-    });
+const CreateCandidate: NextPage<{
+  schools: { sid: string; name: string }[];
+}> = ({ schools }) => {
+  const { data } = useSession();
+  const [active, setActive] = useState(0);
 
-    return (
-        <AppShell header={<Header />}>
-            <Title align="center" order={1}>
-                Create your Candidate Profile
-            </Title>
-            <form onSubmit={candidateForm.onSubmit((value) => console.log(value))}>
-                <Stepper active={active} onStepClick={setActive} breakpoint="md">
-                    <Stepper.Step label="First Step" description="Add Your Email">
-                        <Input.Wrapper
-                            required
-                            label="Your Email"
-                            description="This is your email identifier. This can be changed later. Your Email should match the one used in either Google or Microsoft."
-                        >
-                            <Input type="email" icon={<IconAt />} />
-                        </Input.Wrapper>
-                    </Stepper.Step>
-                    <Stepper.Step label="Second Step" description="Contact Information">
-                        <Input.Wrapper
-                            required
-                            label="Your Name"
-                            description="Please enter your first and last name."
-                        >
-                            <Group grow position="apart">
-                                <Input placeholder="First Name" />
-                                <Input placeholder="Last Name" />
-                            </Group>
-                        </Input.Wrapper>
-                        <Input.Wrapper
-                            label="Your Phone Number"
-                            description="Add your phone number so Schools and Districts can contact you. This information can be hidden."
-                        >
-                            <Input
-                                icon={<IconPhone />}
-                                component={InputMask}
-                                mask="+1 (999) 999-9999"
-                                placeholder="Your Phone Number"
-                            />
-                        </Input.Wrapper>
-                        <Switch label="Married?" />
-                        <Switch label="Rostered?" />
-                    </Stepper.Step>
-                    <Stepper.Step label="Third Step" description="Your Address">
-                        <Input.Wrapper label="House Number">
-                            <Input icon={<IconHome />} />
-                        </Input.Wrapper>
-                        <Input.Wrapper
-                            label="Street"
-                            description="Please use the full name, no abbreviations"
-                        >
-                            <Input icon={<IconRoad />} />
-                        </Input.Wrapper>
-                        <Input.Wrapper
-                            label="Zip Code"
-                            description="Please enter your ZipCode."
-                        >
-                            <Input
-                                placeholder="Zip Code"
-                                component={InputMask}
-                                mask="99999"
-                            />
-                        </Input.Wrapper>
-                    </Stepper.Step>
-                    <Stepper.Step label="Fourth Step" description="Your Education">
-                        Please just add your Undergraduate here.
-                        <NativeSelect
-                            label="Your Degree"
-                            description="The type of degree you earned"
-                            data={["B.S. Education", "B.A. Education", "B.S.", "B.A."]}
-                            placeholder="Select One"
-                        />
-                        <Switch label="Graduated?" />
-                        <DatePicker
-                            icon={<IconCalendarEvent />}
-                            label="Graduation Date"
-                            description="Please select your graduation date"
-                        />
-                        <NativeSelect
-                            icon={<IconSchool />}
-                            label="Your Institution"
-                            description="Select a valid institution"
-                            data={schools.map((school) => {
-                                return { label: school.name, value: school.sid };
-                            })}
-                        />
-                    </Stepper.Step>
-                </Stepper>
-            </form>
-        </AppShell>
-    );
+  const nextStep = () =>
+    setActive((current) => (current < NUMBER_OF_STEPS ? current + 1 : current));
+  const prevStep = () =>
+    setActive((current) => (current > 0 ? current - 1 : current));
+
+  const { classes } = useStyles();
+
+  const candidateForm = useForm<CandidateRegistrationForm>({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: data?.user?.email || "",
+      phoneNumber: "",
+      isMarried: false,
+      wasRostered: false,
+      addressHouseNumber: "",
+      addressStreet: "",
+      addressState: "",
+      addressZipCode: "",
+      addressCountry: "United States",
+      educationDegree: "",
+      educationIsGraduated: false,
+      educationGraduationDate: null,
+      educationAt: (schools.length && schools[0].name) || "Unknown School",
+    },
+  });
+
+  return (
+    <AppShell header={<Header />}>
+      <Title align="center" order={1}>
+        Create your Candidate Profile
+      </Title>
+      <form
+        className={classes.formPadding}
+        onSubmit={candidateForm.onSubmit((value) =>
+          fetch("/api/candidates", {
+            method: "POST",
+            body: JSON.stringify(value),
+          })
+        )}
+      >
+        <Stepper active={active} onStepClick={setActive} breakpoint="md">
+          <CreateCandidateStepOne form={candidateForm} />
+          <CreateCandidateSecondStep form={candidateForm} />
+          <CreateCandidateThirdStep form={candidateForm} />
+          <CreateCandidateFourthStep
+            form={candidateForm}
+            validSchools={schools.map((s) => {
+              return { label: s.name, value: s.sid };
+            })}
+          />
+        </Stepper>
+        <Group position="center" mt="xl">
+          <PreviousStepButton onClick={prevStep} />
+          {active === NUMBER_OF_STEPS - 1 ? (
+            <Button type="submit">Submit</Button>
+          ) : (
+            <Button onClick={nextStep}>Next</Button>
+          )}
+        </Group>
+      </form>
+    </AppShell>
+  );
 };
 
 // Backend
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const schools = await client.school.findMany({
-        select: {
-            sid: true,
-            name: true,
-        },
-    });
+export const getServerSideProps: GetServerSideProps = async () => {
+  const schools = await client.school.findMany({
+    select: {
+      sid: true,
+      name: true,
+    },
+  });
 
-    return {
-        props: {
-            data: schools,
-        },
-    };
+  return {
+    props: {
+      schools: schools,
+    },
+  };
 };
 
 export default CreateCandidate;

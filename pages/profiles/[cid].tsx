@@ -5,97 +5,151 @@
  * Candidate Profile Page
  **/
 
-import type { Candidate } from "@prisma/client";
 import type {
-    NextPage,
-    GetServerSideProps,
-    GetServerSidePropsContext,
+  Candidate,
+  CandidateAddress,
+  CandidateEducation,
+  School,
+} from "@prisma/client";
+import type {
+  NextPage,
+  GetServerSideProps,
+  GetServerSidePropsContext,
 } from "next";
 import { useRouter } from "next/router";
-import Head from "next/head";
 import { unstable_getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
-import client from "@/lib/prismadb";
-import { Option, Some, None } from "@sniptt/monads";
-import { Title, Avatar, AppShell, Stack, createStyles } from "@mantine/core";
+import { AppShell, useMantineTheme, Grid } from "@mantine/core";
+import { useViewportSize } from "@mantine/hooks";
 import Header from "@/components/header";
 
-const useStyles = createStyles((theme) => ({
-    profilePic: {
-        minWidth: "50vh",
-        minHeight: "50vh",
-        padding: "1em",
-    },
-}));
+import { Option, Some, None } from "@sniptt/monads";
 
-const ProfilePage: NextPage = (props: Candidate | null) => {
-    const router = useRouter();
-    const { classes } = useStyles();
+import client from "@/lib/prismadb";
+import ProfileHeader from "@/components/profile/profile-header";
+import ProfileEducation from "@/components/profile/profile-education";
+import ProfileBiography from "@/components/profile/profile-biography";
 
-    if (props === null) router.push("/create-candidate");
+type FullCandidate = Candidate & {
+  addresses: CandidateAddress[];
+  attended: (CandidateEducation & { at: School })[];
+};
 
-    const candidate = props as Candidate;
+function useVariablePosition(width: number, breakpoint: number) {
+  return (truthy: string, falsy: string) =>
+    width < breakpoint ? truthy : falsy;
+}
 
-    return (
-        <AppShell header={<Header />}>
-            <Stack align="center">
-                <Avatar className={classes.profilePic} color="cyan" />
-                <Title>
-                    {candidate.firstName} {candidate.lastName}
-                </Title>
-                <Title>{candidate.phoneNumber}</Title>
-                <Title>{candidate.isMarried ? "Married" : "Single"}</Title>
-                <Title>{candidate.wasRostered ? "Rostered" : "UnRostered"}</Title>
-            </Stack>
-        </AppShell>
-    );
+const ProfilePage: NextPage<{ candidate: FullCandidate }> = ({
+  candidate,
+}: {
+  candidate: FullCandidate;
+}) => {
+  const router = useRouter();
+  const { width } = useViewportSize();
+  const theme = useMantineTheme();
+
+  const setPosition = useVariablePosition(width, theme.breakpoints.md);
+
+  return (
+    <AppShell header={<Header />}>
+      <ProfileHeader
+        candidate={candidate}
+        position={setPosition("center", "left")}
+        alignment={setPosition("center", "flex-start")}
+      />
+      <Grid
+        style={{ minWidth: "99.6vw" }}
+        justify="space-around"
+        align="flex-start"
+      >
+        <Grid.Col sm={12} md={6}>
+          <ProfileEducation
+            education={candidate.attended}
+            alignment={setPosition("center", "left")}
+          />
+        </Grid.Col>
+        <Grid.Col sm={12} md={6}>
+          <ProfileBiography
+            cid={candidate.cid}
+            initialBiography={candidate.biography}
+            isMe={router.query.cid === "me"}
+          />
+        </Grid.Col>
+      </Grid>
+    </AppShell>
+  );
 };
 
 // Backend
-const getCandidateFromMe = async (
-    context: GetServerSidePropsContext
-): Promise<Option<Candidate>> => {
-    const session = await unstable_getServerSession(
-        context.req,
-        context.res,
-        authOptions
-    );
-
-    const currentCandidate = await client.candidate.findUnique({
-        where: {
-            email: session?.user?.email as string,
-        },
-    });
-
-    if (currentCandidate) return Some(currentCandidate);
-    return None;
-};
-
-const getCandidateFromCid = async (
-    context: GetServerSidePropsContext
-): Promise<Option<Candidate>> => {
-    const { cid } = context.query;
-
-    const candidate = await client.candidate.findUnique({
-        where: {
-            cid: cid as string,
-        },
-    });
-
-    if (candidate) return Some(candidate);
-    return None;
-};
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { cid } = context.query;
+  const { cid } = context.query;
 
-    const candidate =
-        cid === "me"
-            ? await getCandidateFromMe(context)
-            : await getCandidateFromCid(context);
+  const candidate =
+    cid === "me"
+      ? await getCandidateFromMe(context)
+      : await getCandidateFromCid(context);
 
-    if (candidate.isNone()) return { props: null };
-    if (candidate.isSome()) return { props: candidate.unwrap() };
+  if (candidate.isNone())
+    return {
+      redirect: {
+        destination: "/create-candidate",
+        permanent: false,
+      },
+    };
+  return { props: { candidate: candidate.unwrap() } };
 };
+
+async function getCandidateFromMe(
+  context: GetServerSidePropsContext
+): Promise<Option<Candidate>> {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (!session) return None;
+
+  const currentCandidate = await client.candidate.findUnique({
+    where: {
+      email: session?.user?.email as string,
+    },
+    include: {
+      attended: {
+        include: {
+          at: true,
+        },
+      },
+      addresses: true,
+    },
+  });
+
+  if (currentCandidate) return Some(currentCandidate);
+  return None;
+}
+
+async function getCandidateFromCid(
+  context: GetServerSidePropsContext
+): Promise<Option<Candidate>> {
+  const { cid } = context.query;
+
+  const candidate = await client.candidate.findUnique({
+    where: {
+      cid: cid as string,
+    },
+    include: {
+      attended: {
+        include: {
+          at: true,
+        },
+      },
+      addresses: true,
+    },
+  });
+
+  if (candidate) return Some(candidate);
+  return None;
+}
 
 export default ProfilePage;
