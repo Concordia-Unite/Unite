@@ -2,107 +2,111 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+    provider = "sqlite"
+    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+    // Further reading: 
+    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+    url      = env("DATABASE_URL")
 }
 
 model School {
-  sid         String               @id @default(cuid())
-  name        String
-  candidates  CandidateEducation[]
-  houseNumber Int
-  street      String
-  state       String
-  zipCode     String
-  country     String
+    sid         String               @id @default(cuid())
+    name        String
+    candidates  CandidateEducation[]
+    houseNumber String
+    street      String
+    state       String
+    zipCode     String
+    country     String
 }
 
 // Candidate
 model Candidate {
-  cid               String               @id @default(cuid())
-  firstName         String
-  lastName          String
-  biography         String               @default("")
-  profilePictureUrl String               @default("")
-  email             String               @unique
-  phoneNumber       String
-  isMarried         Boolean              @default(true)
-  wasRostered       Boolean              @default(false)
-  addresses         CandidateAddress[]
-  showAddress       Boolean
-  attended          CandidateEducation[]
+    cid               String               @id @default(cuid())
+    firstName         String
+    lastName          String
+    biography         String               @default("")
+    profilePictureUrl String               @default("")
+    email             String
+    uid               String               @unique
+    phoneNumber       String
+    isMarried         Boolean              @default(true)
+    wasRostered       Boolean              @default(false)
+    addresses         CandidateAddress[]
+    showAddress       Boolean
+    attended          CandidateEducation[]
 }
 
 model CandidateEducation {
-  degree         String
-  isGraduated    Boolean
-  graduationDate DateTime?
-  at             School    @relation(fields: [schoolId], references: [sid])
-  schoolId       String
-  for            Candidate @relation(fields: [candidateId], references: [cid])
-  candidateId    String
+    degree         String
+    isGraduated    Boolean
+    graduationDate DateTime?
+    at             School    @relation(fields: [schoolId], references: [sid])
+    schoolId       String
+    for            Candidate @relation(fields: [candidateId], references: [cid])
+    candidateId    String
 
-  @@id([candidateId, schoolId, isGraduated])
+    @@id([candidateId, schoolId, isGraduated])
 }
 
 model CandidateAddress {
-  houseNumber Int
-  street      String
-  state       String
-  zipCode     String
-  country     String
-  candidate   Candidate @relation(fields: [candidateId], references: [cid], onDelete: Cascade)
-  candidateId String
+    houseNumber String
+    street      String
+    state       String
+    zipCode     String
+    country     String
+    candidate   Candidate @relation(fields: [candidateId], references: [cid], onDelete: Cascade)
+    candidateId String
 
-  @@id([houseNumber, street, state, zipCode, country, candidateId])
+    @@id([houseNumber, street, state, zipCode, country, candidateId])
 }
 
-// NextAuth
+// Necessary for Next auth
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? // @db.Text
+    access_token      String? // @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? // @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+    @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
