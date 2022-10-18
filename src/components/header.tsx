@@ -3,23 +3,63 @@
  * Ian Kollipara
  * 2022.10.08
  *
- * Header Component of App Shell
+ * Header Component
  */
 
-import { Button, Group, Header as BaseHeader, Title } from "@mantine/core";
-import { IconUserCircle } from "@tabler/icons";
+import { Button, createStyles, Divider, Title } from "@mantine/core";
+import { IconLogin, IconLogout, IconUserCircle } from "@tabler/icons";
+import { signOut, useSession } from "next-auth/react";
+import { ResponsiveHeader } from "./responsive-header";
+import { LinkButton } from "./link-button";
 
-// TODO
+const useStyles = createStyles((theme) => ({
+  hiddenMobile: {
+    [theme.fn.smallerThan("md")]: {
+      display: "none",
+    },
+  },
+
+  hiddenDesktop: {
+    [theme.fn.largerThan("md")]: {
+      display: "none",
+    },
+  },
+}));
 
 export const Header = () => {
+  const { classes } = useStyles();
+  const { status } = useSession();
   return (
-    <BaseHeader height={60} p="xs" fixed>
-      <Group sx={{ height: "100%" }} px={20} position="apart">
-        <Title>Unite</Title>
-        <Button variant="subtle" radius={"xl"} leftIcon={<IconUserCircle />}>
-          My Profile
+    <ResponsiveHeader>
+      <Title>Unite</Title>
+      <Divider className={classes.hiddenDesktop} />
+      <LinkButton
+        href="/candidates/me"
+        variant="subtle"
+        color={"cyan"}
+        leftIcon={<IconUserCircle />}
+      >
+        My Profile
+      </LinkButton>
+      {status === "authenticated" ? (
+        <Button
+          leftIcon={<IconLogout />}
+          variant="subtle"
+          color={"green"}
+          onClick={() => signOut()}
+        >
+          Sign Out
         </Button>
-      </Group>
-    </BaseHeader>
+      ) : (
+        <LinkButton
+          href={"/login"}
+          variant="subtle"
+          leftIcon={<IconLogin />}
+          color="green"
+        >
+          Sign in
+        </LinkButton>
+      )}
+    </ResponsiveHeader>
   );
 };

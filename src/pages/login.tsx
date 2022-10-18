@@ -9,10 +9,21 @@
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { AppShell, Button, Center, Paper, Stack, Title } from "@mantine/core";
+import {
+  AppShell,
+  Button,
+  Center,
+  Divider,
+  Paper,
+  Stack,
+  Title,
+} from "@mantine/core";
 import { createStyles } from "@mantine/core";
 import { SpotifyButton } from "../components/spotify-button";
 import { CuneLogo } from "../components/cune-logo";
+import { Header } from "../components/header";
+import { GoogleButton } from "../components/google-button";
+import { LinkButton } from "../components/link-button";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -23,7 +34,7 @@ const useStyles = createStyles((theme) => ({
 
   centered: {
     [`@media (max-width: ${theme.breakpoints.sm}px)`]: {
-      paddingTop: "25%",
+      paddingTop: "5%",
     },
   },
 
@@ -31,7 +42,7 @@ const useStyles = createStyles((theme) => ({
     maxWidth: "450px",
     marginTop: "10%",
     minHeight: "75%",
-    paddingTop: "10%",
+    paddingTop: "5%",
 
     [`@media (max-width: ${theme.breakpoints.md}px)`]: {
       minHeight: "50%",
@@ -65,7 +76,7 @@ const Login: NextPage = () => {
     router.push((router.query.callbackUrl as string) || "/candidates/me");
 
   return (
-    <AppShell className={classes.wrapper}>
+    <AppShell header={<Header />} className={classes.wrapper}>
       <Paper className={classes.leftSide} shadow="lg">
         <Center className={classes.centered}>
           <CuneLogo white={false} className={classes.scalableImage} />
@@ -74,9 +85,25 @@ const Login: NextPage = () => {
           Welcome Back!
         </Title>
         <Stack style={{ padding: "1em" }}>
-          <Button>Login with Google</Button>
+          <GoogleButton>Login with Google</GoogleButton>
           <SpotifyButton>Login with Spotify</SpotifyButton>
           <Button>Login with Microsoft</Button>
+          <Divider />
+          <Title align="center">Not a Candidate?</Title>
+          <LinkButton href="/organizations/login" radius={"xl"}>
+            Organization Login
+          </LinkButton>
+          <LinkButton href="/institution/login" radius={"xl"}>
+            CUS Login
+          </LinkButton>
+          <LinkButton href="/districts/login" radius={"xl"}>
+            District Login
+          </LinkButton>
+          <Divider />
+          <Title align="center">Don't have an Account?</Title>
+          <LinkButton href="/signup" radius={"xl"}>
+            Sign Up Here
+          </LinkButton>
         </Stack>
       </Paper>
     </AppShell>

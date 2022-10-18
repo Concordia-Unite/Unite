@@ -23,6 +23,8 @@ import type { NextPage } from "next";
 import { useState } from "react";
 import { IconAt, IconPhone } from "@tabler/icons";
 import ReactInputMask from "react-input-mask";
+import { Header } from "../components/header";
+import { CandidateLayout } from "../components/layouts/candidate";
 
 const NUMBER_OF_STEPS = 1;
 
@@ -60,7 +62,7 @@ const CreateCandidate: NextPage = () => {
     setActive((current) => (current > 0 ? current - 1 : current));
 
   return (
-    <AppShell>
+    <CandidateLayout>
       <Title align="center">Add Yourself to Unite!</Title>
       <form
         className={classes.formPadding}
@@ -138,7 +140,7 @@ const CreateCandidate: NextPage = () => {
           )}
         </Group>
       </form>
-    </AppShell>
+    </CandidateLayout>
   );
 };
 

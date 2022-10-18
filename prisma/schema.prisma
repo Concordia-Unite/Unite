@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading: 
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -14,13 +14,167 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model School {
-    sid         String               @id @default(cuid())
+enum StateCode {
+    NE
+    AL
+    KY
+    OH
+    AK
+    LA
+    OK
+    AZ
+    ME
+    OR
+    AR
+    MD
+    PA
+    MA
+    CA
+    MI
+    RI
+    CO
+    MN
+    SC
+    CT
+    MS
+    SD
+    DE
+    MO
+    TN
+    DC
+    MT
+    TX
+    FL
+    GA
+    NV
+    UT
+    NH
+    VT
+    HI
+    NJ
+    VA
+    ID
+    NM
+    IL
+    NY
+    WA
+    IN
+    NC
+    WV
+    IA
+    ND
+    WI
+    KS
+    WY
+}
+
+enum Region {
+    GreatLakes
+    GreatPlains
+    WestSouthwest
+    EastSouthwest
+    Central
+}
+
+enum Position {
+    Deaconess
+    DirectorOfChristianEducation
+    DirectorOfChristianOutreach
+    DirectorOfChurchMinistries
+    DirectorOfFamilyLifeMinistries
+    DirectorOfParishMusic
+    EarlyChildhoodLutheranTeacher
+    ElementaryLutheranTeacher
+    MiddleLutheranTeacher
+    SecondaryLutheranTeacher
+    K12LutheranTeacher
+    K8LutheranTeacher
+    SpecialEducationLutheranTeacher
+}
+
+enum Classroom {
+    Deparmentalized
+    SelfContained
+    SelfContainedMultiGrade
+}
+
+enum MaritialStatus {
+    Married
+    Single
+    Engaged
+}
+
+enum Time {
+    FullTime
+    PartTime
+}
+
+enum Call {
+    NonTenured
+    Tenured
+}
+
+enum SocialSecurityContribution {
+    EmployerPaysAll
+    EmployerPaysPart
+    WorkPaysAll
+    Other
+}
+
+enum HousingContribution {
+    ResidenceProvided
+    SalaryOnly
+    SalaryPlusHousingStipend
+}
+
+enum HealthCoverage {
+    Family
+    WorkerOnly
+    WorkerAndChildren
+}
+
+enum HealthPlan {
+    ConcordiaPlan
+    None
+    Other
+}
+
+enum AccountType {
+    Candidate
+    Organization
+    Institution
+    District
+}
+
+model Institution {
+    iid           String               @id @default(cuid())
+    name          String
+    candidates    CandidateEducation[]
+    positions     Position[]
+    houseNumber   String
+    street        String
+    state         StateCode
+    zipCode       String
+    country       String
+    PlaceDirector PlaceDirector[]
+}
+
+model PlaceDirector {
+    pdid           String      @id @default(cuid())
+    institution    Institution @relation(fields: [institutionIid], references: [iid])
+    institutionIid String
+    email          String
+}
+
+model District {
+    did         String      @id @default(cuid())
     name        String
-    candidates  CandidateEducation[]
+    states      StateCode[]
+    region      Region
+    candidates  Candidate[]
     houseNumber String
     street      String
-    state       String
+    state       StateCode
     zipCode     String
     country     String
 }
@@ -35,20 +189,23 @@ model Candidate {
     email             String
     uid               String               @unique
     phoneNumber       String
-    isMarried         Boolean              @default(true)
+    maritialStatus    MaritialStatus       @default(Single)
     wasRostered       Boolean              @default(false)
     addresses         CandidateAddress[]
-    showAddress       Boolean
+    showAddress       Boolean              @default(false)
+    showPhoneNumber   Boolean              @default(false)
     attended          CandidateEducation[]
+    District          District?            @relation(fields: [districtDid], references: [did])
+    districtDid       String?
 }
 
 model CandidateEducation {
     degree         String
     isGraduated    Boolean
     graduationDate DateTime?
-    at             School    @relation(fields: [schoolId], references: [sid])
+    at             Institution @relation(fields: [schoolId], references: [iid])
     schoolId       String
-    for            Candidate @relation(fields: [candidateId], references: [cid])
+    for            Candidate   @relation(fields: [candidateId], references: [cid])
     candidateId    String
 
     @@id([candidateId, schoolId, isGraduated])
@@ -57,7 +214,7 @@ model CandidateEducation {
 model CandidateAddress {
     houseNumber String
     street      String
-    state       String
+    state       StateCode
     zipCode     String
     country     String
     candidate   Candidate @relation(fields: [candidateId], references: [cid], onDelete: Cascade)
@@ -73,13 +230,13 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
+    refresh_token     String? @map("refreshToken") @db.Text
+    access_token      String? @map("accessToken") @db.Text
+    expires_at        Int?    @map("expiresAt")
+    token_type        String? @map("tokenType")
     scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
+    id_token          String? @map("idToken") @db.Text
+    session_state     String? @map("sessionState")
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
@@ -94,13 +251,14 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    accountType   AccountType @default(Candidate)
 }
 
 model VerificationToken {

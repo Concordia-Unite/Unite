@@ -60,11 +60,6 @@ export const CandidateShort = ({
         )}
         {candidate.showAddress &&
           candidate.addresses.map((a) => <Address {...a} />)}
-        <Group align={"center"}>
-          <Button variant="light" size="md" radius={"xl"}>
-            Extend a Call
-          </Button>
-        </Group>
       </Stack>
     </Group>
   );
