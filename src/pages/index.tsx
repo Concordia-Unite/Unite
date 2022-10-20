@@ -13,6 +13,7 @@ import { Header } from "../components/header";
 import { createStyles, Container, Title, Text, Button } from "@mantine/core";
 import { LinkButton } from "../components/link-button";
 import { DefaultLayout } from "../components/layouts/default";
+import Head from "next/head";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -131,9 +132,14 @@ export function HeroImageRight() {
 }
 
 const LandingPage: NextPage = () => (
-  <DefaultLayout>
-    <HeroImageRight />
-  </DefaultLayout>
+  <>
+    <Head>
+      <title>Concordia Unite</title>
+    </Head>
+    <DefaultLayout>
+      <HeroImageRight />
+    </DefaultLayout>
+  </>
 );
 
 export default LandingPage;

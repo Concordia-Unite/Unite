@@ -8,226 +8,78 @@
 
 import { t } from "../trpc";
 import { z } from "zod";
+import { authedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { StateCode } from "@prisma/client";
+import { MaritialStatus, StateCode } from "@prisma/client";
 
 export const candidateRouter = t.router({
   /**
-   * # getByCid
+   * # get
    *
-   * This query returns the candidate associated with the cid.
-   * If the cid does not match, an error is thrown.
-   * This returns just a base Candidate. Use `getByCidFull` for a full
-   * Candidate.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param cid the Candidate Id
-   * @returns Candidate
-   * @exception TRPCError
-   */
-  getByCid: t.procedure
-    .input(
-      z.object({
-        cid: z.string(),
-      })
-    )
-    .query(({ input, ctx }) => {
-      try {
-        return ctx.prisma.candidate.findUniqueOrThrow({
-          where: {
-            cid: input.cid,
-          },
-        });
-      } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `${input.cid} is not a valid Candidate Id`,
-          cause: error,
-        });
-      }
-    }),
-
-  /**
-   * # getByCidFull
-   *
-   * This query returns the candidate associated with the cid.
-   * If the cid does not match, an error is thrown.
-   * This returns a full Candidate. Use `getByCid` for a base Candidate.
+   * Get the current Candidate associated with the logged in user.
+   * If there is no candidate associated with the id, throw an error.
+   * If you want the full Candidate, with all relations resolved, use `getFull`.
    *
    * ---
    *
    * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param cid the Candidate Id
-   * @returns `Candidate & { addresses: CandidateAddress[]; attended (CandidateEducation & { at: Institution })[] }`
-   * @exception TRPCError
+   * @return `Canidate` or `TRPCError`
+   * @exception `TRPCError` with code: `NOT_FOUND`
    */
-  getByCidFull: t.procedure
-    .input(
-      z.object({
-        cid: z.string(),
-      })
-    )
-    .query(({ input, ctx }) => {
-      try {
-        return ctx.prisma.candidate.findUniqueOrThrow({
-          where: {
-            cid: input.cid,
-          },
-          include: {
-            addresses: true,
-            attended: {
-              include: {
-                at: true,
-              },
-            },
-          },
-        });
-      } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `${input.cid} is not a valid Candidate Id`,
-          cause: error,
-        });
-      }
-    }),
-
-  /**
-   * # getByUid
-   *
-   * This query returns the candidate associated with a specific User Id, returned from an OAuth Sign-In.
-   * If the User Id does not match, an error is thrown.
-   * This returns just a base Candidate. Use `getByUidFull` for a full
-   * Candidate.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param uid the User Id
-   * @returns Candidate
-   * @exception TRPCError
-   */
-  getByUid: t.procedure
-    .input(
-      z.object({
-        uid: z.string(),
-      })
-    )
-    .query(({ input, ctx }) => {
-      try {
-        return ctx.prisma.candidate.findUniqueOrThrow({
-          where: {
-            uid: input.uid,
-          },
-        });
-      } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `${input.uid} is not a valid User Id`,
-          cause: error,
-        });
-      }
-    }),
-
-  /**
-   * # getByUidFull
-   *
-   * This query returns the candidate associated with a specific User Id, returned from an OAuth Sign-In.
-   * If the User Id does not match, an error is thrown.
-   * This returns a full Candidate. Use `getByUid` for a base
-   * Candidate.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param uid the User Id
-   * @returns Candidate & { addresses: CandidateAddress[]; attended (CandidateEducation & { at: School })[] }
-   * @exception TRPCError
-   */
-  getByUidFull: t.procedure
-    .input(
-      z.object({
-        uid: z.string(),
-      })
-    )
-    .query(({ input, ctx }) => {
-      try {
-        return ctx.prisma.candidate.findUniqueOrThrow({
-          where: {
-            uid: input.uid,
-          },
-          include: {
-            addresses: true,
-            attended: {
-              include: {
-                at: true,
-              },
-            },
-          },
-        });
-      } catch (error) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: `${input.uid} is not a valid User Id`,
-          cause: error,
-        });
-      }
-    }),
-
-  /**
-   * # getCurrent
-   *
-   * Get the currently logged in user's Candidate Info.
-   * If no candidate info is found, throw an error.
-   * This returns just a base Candidate. Use  `getCurrentFull` for a full Candidate.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @return Candidate
-   * @exception TRPCError
-   */
-  getCurrent: t.procedure.query(({ ctx }) => {
+  get: authedProcedure.query(({ ctx }) => {
     try {
       return ctx.prisma.candidate.findUniqueOrThrow({
         where: {
-          uid: ctx.session?.user?.id,
+          userId: ctx.session.user.id,
         },
       });
     } catch (error) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `${ctx.session?.user?.id} is not a valid User Id`,
+        message: "No Candidate found for the given UserId",
         cause: error,
       });
     }
   }),
 
   /**
-   * # getCurrentFull
+   * # getFull
    *
-   * Get the currently logged in user's Candidate Info.
-   * If no candidate info is found, throw an error.
-   * This returns a full Candidate. Use  `getCurrentFull` for a base Candidate.
+   * Get the current Candidate associated with the logged in user.
+   * If there is no candidate associated with the id, throw an error.
+   * This is the full Candidate, with all relations resolved. Use `get`
+   * for just the base candidate.
    *
    * ---
    *
    * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @returns Candidate & { addresses: CandidateAddress[]; attended (CandidateEducation & { at: School })[] }
-   * @exception TRPCError
+   * @return Full Candidate
+   * @exception TRPCError with error code `NOT_FOUND`
    */
-  getCurrentFull: t.procedure.query(({ ctx }) => {
+  getFull: authedProcedure.query(({ ctx }) => {
     try {
       return ctx.prisma.candidate.findUniqueOrThrow({
         where: {
-          uid: ctx.session?.user?.id,
+          userId: ctx.session.user.id,
         },
         include: {
-          addresses: true,
+          addresses: {
+            include: {
+              address: true,
+            },
+          },
           attended: {
             include: {
-              at: true,
+              institution: true,
+            },
+          },
+          calls: {
+            include: {
+              job: {
+                include: {
+                  organization: true,
+                },
+              },
             },
           },
         },
@@ -235,121 +87,72 @@ export const candidateRouter = t.router({
     } catch (error) {
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: `${ctx.session?.user?.id} is not a valid User Id`,
+        message: "No Candidate Found at given ID",
         cause: error,
       });
     }
   }),
-  /**
-   * # insertOne
-   *
-   * Insert a new Candidate into the database. The
-   * new candidate is returned upon successful entry.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param firstName The first name of the Candidate
-   * @param lastName The last name of the Candidate.
-   * @param biography The biography of the Candidate. This field is optional
-   * @param profilePictureUrl The link to the Candidate's Profile Picture
-   * @param email The email of the Candidate
-   * @param uid The user id of the Candidate. This ties the SSO to the Candidate
-   * @param phoneNumber The phoneNumber of the Candidate
-   * @param isMarried The marital status for the Candidate. This field is optional.
-   * @param wasRostered The roster status of the Canidate. This field is optional.
-   * @param showAddress A privacy control for showing the Candidate's addresses. This field is optional.
-   * @returns Candidate
-   */
-  insertOne: t.procedure
+
+  add: authedProcedure
     .input(
       z.object({
         firstName: z.string(),
         lastName: z.string(),
         biography: z.string().default(""),
-        profilePictureUrl: z.string().default(""),
+        profilePictureUrl: z.string().nullish(),
         email: z.string().email(),
-        uid: z.string(),
-        phoneNumber: z.string(),
-        isMarried: z.boolean().default(false),
-        wasRostered: z.boolean().default(false),
+        phoneNumber: z.string().length(17).default("+1 (000) 000-0000"),
+        maritialStatus: z.nativeEnum(MaritialStatus).default("Single"),
+        showPhoneNumber: z.boolean().default(false),
         showAddress: z.boolean().default(false),
+        userId: z.string(),
+        rosterStatus: z.discriminatedUnion("isRostered", [
+          z.object({
+            isRostered: z.literal(true),
+            institutionId: z.string().uuid(),
+          }),
+          z.object({
+            isRostered: z.literal(false),
+            districtId: z.string().uuid(),
+          }),
+        ]),
+        education: z
+          .object({
+            degree: z.string().default("B.S. Education"),
+            graduationDate: z.date().nullish(),
+            isGraduated: z.boolean().default(false),
+            institutionId: z.string().uuid(),
+          })
+          .array(),
       })
     )
     .mutation(({ input, ctx }) => {
-      return ctx.prisma.candidate.create({
-        data: {
-          ...input,
-        },
-      });
-    }),
-  /**
-   * # addEducation
-   *
-   * Add an education entry for the candidate. These represent
-   * the different schoolings and degrees of the Candidate.
-   * These are tied to a specific CUS University.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param degree The degree of the Candidate. TODO Change this to a Enumeration.
-   * @param isGraduated The graduation status of the Candidate in relation to the Degree.
-   * @param schoolId The id of the school. TODO Change the name to Institution
-   * @param candidateId The id that connects the candidate to the education.
-   */
-  addEducation: t.procedure
-    .input(
-      z.object({
-        degree: z.string(),
-        isGraduated: z.boolean().default(false),
-        schoolId: z.string().cuid(),
-        candidateId: z.string().cuid(),
-      })
-    )
-    .mutation(({ input, ctx }) => {
-      ctx.prisma.candidateEducation.create({
-        data: {
-          ...input,
-        },
-      });
-    }),
-  /**
-   * # addAddress
-   *
-   * Add an address entry for the Candidate.
-   *
-   * ---
-   *
-   * @author Ian Kollipara <ian.kollipara@cune.org>
-   * @param houseNumber The house number (e.g. 224)
-   * @param street The street name for the address (e.g. Jackson Ave.)
-   * @param state the State Code, these must be one of the given state types. (e.g. NE)
-   * @param zipCode the zipcode for the house. Must be 6 digit characters long (e.g. 68434)
-   * @param country The country code. Defaults to "US"
-   * @param candidateId The id of the Candidate to connect the address to.
-   */
-  addAddress: t.procedure
-    .input(
-      z.object({
-        houseNumber: z.string(),
-        street: z.string(),
-        state: z.nativeEnum(StateCode),
-        zipCode: z.string().length(5),
-        country: z.string().length(2).default("US"),
-        candidateId: z.string().cuid(),
-      })
-    )
-    .mutation(({ input, ctx }) => {
-      ctx.prisma.candidateAddress.create({
-        data: {
-          houseNumber: input.houseNumber,
-          street: input.street,
-          state: input.state,
-          zipCode: input.zipCode,
-          country: input.country,
-          candidateId: input.candidateId,
-        },
-      });
+      try {
+        ctx.prisma.user.update({
+          where: {
+            id: ctx.session.user.id,
+          },
+          data: {
+            type: "Candidate",
+          },
+        });
+        return ctx.prisma.candidate.create({
+          data: {
+            ...input,
+            profilePictureUrl:
+              input.profilePictureUrl ?? ctx.session.user.image ?? "",
+            ...input.rosterStatus,
+            attended: {
+              create: input.education,
+            },
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "PARSE_ERROR",
+          message: "Input Body is wrong",
+          cause: error,
+        });
+      }
     }),
 });
