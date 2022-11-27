@@ -1,53 +1,40 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-### STANDARD GIT IGNORE FILE ###
-
-# DEPENDENCIES
-node_modules/
+# dependencies
+/node_modules
 /.pnp
 .pnp.js
-package-lock.json
-yarn.lock
 
-# TESTING
+# testing
 /coverage
-*.lcov
-.nyc_output
 
-# BUILD
-build/
-public/build/
-dist/
-generated/
+# database
+/prisma/db.sqlite
+/prisma/db.sqlite-journal
 
-# ENV FILES
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# next.js
+/.next/
+/out/
 
-# LOGS
-logs
-*.log
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# MISC
-.idea
-.turbo/
-.cache/
-.next/
-.nuxt/
-tmp/
-temp/
-.eslintcache
-.docusaurus
+# local env files
+.env
+.env*.local
 
-# MAC
-._*
-.DS_Store
-Thumbs.db
+# vercel
+.vercel
 
-.turbo
+# typescript
+*.tsbuildinfo

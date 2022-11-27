@@ -7,7 +7,7 @@
  */
 
 import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import {
   AppShell,
@@ -19,11 +19,10 @@ import {
   Title,
 } from "@mantine/core";
 import { createStyles } from "@mantine/core";
-import { SpotifyButton } from "../components/spotify-button";
-import { CuneLogo } from "../components/cune-logo";
-import { Header } from "../components/header";
-import { GoogleButton } from "../components/google-button";
-import { LinkButton } from "../components/link-button";
+import { UniteHeader } from "../components/ui/UniteHeader";
+import { LinkButton } from "../components/ui/LinkButton";
+import { IconBrandGoogle } from "@tabler/icons";
+import { useHover } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -68,37 +67,67 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const Login: NextPage = () => {
-  const { status } = useSession();
-  const router = useRouter();
   const { classes } = useStyles();
-
-  if (status === "authenticated")
-    router.push((router.query.callbackUrl as string) || "/candidates/me");
+  const session = useSession();
 
   return (
-    <AppShell header={<Header />} className={classes.wrapper}>
+    <AppShell
+      header={<UniteHeader />}
+      className={classes.wrapper}
+    >
       <Paper className={classes.leftSide} shadow="lg">
-        <Center className={classes.centered}>
-          <CuneLogo white={false} className={classes.scalableImage} />
-        </Center>
         <Title order={1} align="center">
           Welcome Back!
         </Title>
         <Stack style={{ padding: "1em" }}>
-          <GoogleButton>Login with Google</GoogleButton>
-          <SpotifyButton>Login with Spotify</SpotifyButton>
-          <Button>Login with Microsoft</Button>
-          <Divider />
-          <Title align="center">Not a Candidate?</Title>
-          <LinkButton href="/organizations/login" radius={"xl"}>
+          <Button
+            radius={"xl"}
+            leftIcon={<IconBrandGoogle />}
+            variant="outline"
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: "/candidates/dashboard",
+              })
+            }
+          >
+            Candidate Login
+          </Button>
+          <Button
+            leftIcon={<IconBrandGoogle />}
+            variant="outline"
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: "/organizations/dashboard",
+              })
+            }
+            radius={"xl"}
+          >
             Organization Login
-          </LinkButton>
-          <LinkButton href="/institution/login" radius={"xl"}>
-            CUS Login
-          </LinkButton>
-          <LinkButton href="/districts/login" radius={"xl"}>
+          </Button>
+          <Button
+            leftIcon={<IconBrandGoogle />}
+            variant="outline"
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: "/district/dashboard",
+              })
+            }
+            radius={"xl"}
+          >
             District Login
-          </LinkButton>
+          </Button>
+          <Button
+            leftIcon={<IconBrandGoogle />}
+            variant="outline"
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: "/institutions/dashboard",
+              })
+            }
+            radius={"xl"}
+          >
+            Institution Login
+          </Button>
           <Divider />
           <Title align="center">Don't have an Account?</Title>
           <LinkButton href="/signup" radius={"xl"}>

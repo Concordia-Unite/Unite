@@ -1,425 +1,350 @@
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading: 
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgres"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
-enum StateCode {
-    NE
-    AL
-    KY
-    OH
-    AK
-    LA
-    OK
-    AZ
-    ME
-    OR
-    AR
-    MD
-    PA
-    MA
-    CA
-    MI
-    RI
-    CO
-    MN
-    SC
-    CT
-    MS
-    SD
-    DE
-    MO
-    TN
-    DC
-    MT
-    TX
-    FL
-    GA
-    NV
-    UT
-    NH
-    VT
-    HI
-    NJ
-    VA
-    ID
-    NM
-    IL
-    NY
-    WA
-    IN
-    NC
-    WV
-    IA
-    ND
-    WI
-    KS
-    WY
-}
-
-enum Region {
-    GreatLakes
-    GreatPlains
-    WestSouthwest
-    EastSouthwest
-    Central
-}
-
-enum Position {
-    Deaconess
-    DirectorOfChristianEducation
-    DirectorOfChristianOutreach
-    DirectorOfChurchMinistries
-    DirectorOfFamilyLifeMinistries
-    DirectorOfParishMusic
-    EarlyChildhoodLutheranTeacher
-    ElementaryLutheranTeacher
-    MiddleLutheranTeacher
-    SecondaryLutheranTeacher
-    K12LutheranTeacher
-    K8LutheranTeacher
-    SpecialEducationLutheranTeacher
-}
-
-enum ClassroomType {
-    Deparmentalized
-    SelfContained
-    SelfContainedMultiGrade
-}
-
-enum MaritialStatus {
-    Married
-    Single
-    Engaged
-}
-
-enum SocialSecurityContribution {
-    EmployerPaysAll
-    EmployerPaysPart
-    WorkPaysAll
-    Other
-}
-
-enum HousingAllowance {
-    ResidenceProvided
-    SalaryOnly
-    SalaryPlusHousingStipend
-}
-
-enum HealthCoverage {
-    Family
-    WorkerOnly
-    WorkerAndChildren
-}
-
-enum HealthPlan {
-    ConcordiaPlan
-    None
-    Other
-}
-
-enum OrganizationType {
-    RecognizedServiceOrganization
-    School
-    ClassicalSchool
-    Church
-    Association
-}
-
-enum JobStatus {
-    Pending
-    Approved
-    Cancelled
-    Fulfilled
-}
-
-enum Subject {
-    Math
-    Science
-    SocialStudies
-    English
-    SpecialEducation
-    PE
-    Technology
-    History
-    Religion
-    HomeEc
-    Band
-    Choir
-    Other
-}
-
-enum CallStatus {
-    Pending
-    WithOrganization
-    Declined
-    Extended
-    Accepted
-}
-
-enum AdminType {
-    Organization
-    Institution
-    District
-}
-
-enum UserType {
-    Candidate
-    Admin
-    PlacementDirector
-    Unknown
-}
-
-enum PlacementDirectorType {
-    District
-    Institution
-}
-
-enum Grade {
-    Kindergarten
-    First
-    Second
-    Third
-    Fourth
-    Fifth
-    Sixth
-    Seventh
-    Eighth
-    Nineth
-    Tenth
-    Eleventh
-    Twelfth
+model Example {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @map("refreshToken") @db.Text
-    access_token      String? @map("accessToken") @db.Text
-    expires_at        Int?    @map("expiresAt")
-    token_type        String? @map("tokenType")
-    scope             String?
-    id_token          String? @map("idToken") @db.Text
-    session_state     String? @map("sessionState")
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id                String             @id @default(cuid())
-    name              String?
-    email             String?            @unique
-    emailVerified     DateTime?
-    image             String?
-    accounts          Account[]
-    sessions          Session[]
-    type              UserType           @default(Unknown)
-    Candidate         Candidate?
-    Admin             Admin?
-    PlacementDirector PlacementDirector?
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?  @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  candidate     Candidate?
+  Admin         Admin[]
+  Member        Member[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
-// Candidate Model
-// This model represents a Rostered or Unrostered LCMS Canidate.
-// A Candidate is a person who can accept a call, and is a church worker.
-// Some extra data is stored for use in later education.
 model Candidate {
-    id                String             @id @default(uuid()) @db.Uuid
-    user              User               @relation(fields: [userId], references: [id])
-    firstName         String             @default("") @db.VarChar(255)
-    lastName          String             @default("") @db.VarChar(255)
-    biography         String             @default("") @db.Text
-    profilePictureUrl String             @default("") @db.VarChar(255)
-    email             String             @default("") @db.Text
-    phoneNumber       String             @default("+1 (000) 000-0000") @db.VarChar(17)
-    maritialStatus    MaritialStatus     @default(Single)
-    isRostered        Boolean            @default(false)
-    showPhoneNumber   Boolean            @default(false)
-    showAddress       Boolean            @default(false)
-    addresses         CandidateAddress[]
-    attended          Education[]
-    calls             Call[]
-    userId            String             @unique
-    institution       Institution?       @relation(fields: [institutionId], references: [id])
-    institutionId     String?            @db.Uuid
-    district          District?          @relation(fields: [districtId], references: [id])
-    districtId        String?            @db.Uuid
+  id                String      @id @default(uuid()) @db.Uuid
+  user              User        @relation(fields: [userId], references: [id])
+  userId            String      @unique
+  firstName         String      @map("first_name")
+  lastName          String      @map("last_name")
+  biography         String
+  profilePictureUrl String      @map("profile_picture_url")
+  email             String
+  address           Address     @relation(fields: [addressId], references: [id])
+  addressId         String      @map("address_id") @db.Uuid
+  isRostered        Boolean     @map("is_rostered")
+  university        University? @relation(fields: [universityId], references: [id])
+  universityId      String?     @db.Uuid
+  district          District?   @relation(fields: [districtId], references: [id])
+  districtId        String?     @db.Uuid
+  disposedTo        Call[]
 }
 
-// Institution Model
-// This represents a CUS School, or any school that outputs valid Candidates
-// Each Institution has a set of Admins for maintanence, a set of Placement Directors
-// for handling calls, and a set of students which represent current and alumni.
-model Institution {
-    id                 String              @id @default(uuid()) @db.Uuid
-    name               String              @default("") @db.Text
-    addressId          String              @unique @db.Uuid
-    address            Address             @relation(fields: [addressId], references: [id])
-    website            String              @default("") @db.Text
-    positions          Position[]
-    admins             Admin[]
-    placementDirectors PlacementDirector[]
-    students           Education[]
-    candidates         Candidate[]
+model University {
+  id        String      @id @default(uuid()) @db.Uuid
+  name      String
+  address   Address     @relation(fields: [addressId], references: [id])
+  positions Position[]
+  website   String
+  admin     Admin       @relation(fields: [adminId], references: [id])
+  members   Member[]
+  roster    Candidate[]
+  addressId String      @db.Uuid
+  adminId   String      @unique @db.Uuid
 }
 
-// District Model
-// This represents one of the LCMS 35 districts. Ths is represented
-// as a model for two reasons: there are users, and the LCMS can change that
-// system. A district mirrors an Institution, as District's hold lists of rostered
-// Candidates.
+model CallingEntity {
+  id                String             @id @default(uuid()) @db.Uuid
+  name              String
+  region            Region
+  variant           Variant
+  address           Address            @relation(fields: [addressId], references: [id])
+  admin             Admin              @relation(fields: [adminId], references: [id])
+  members           Member[]
+  addressId         String             @db.Uuid
+  adminId           String             @unique @db.Uuid
+  district          District?          @relation(fields: [districtId], references: [id])
+  districtId        String?            @db.Uuid
+  placementRequests PlacementRequest[]
+}
+
 model District {
-    id                 String              @id @default(uuid()) @db.Uuid
-    name               String              @default("") @db.Text
-    region             Region
-    addressId          String              @unique @db.Uuid
-    address            Address             @relation(fields: [addressId], references: [id])
-    admins             Admin[]
-    organizations      Organization[]
-    placementDirectors PlacementDirector[]
-    candidates         Candidate[]
+  id               String             @id @default(uuid()) @db.Uuid
+  name             String
+  address          Address            @relation(fields: [addressId], references: [id])
+  website          String
+  region           Region
+  admin            Admin              @relation(fields: [adminId], references: [id])
+  members          Member[]
+  entities         CallingEntity[]
+  roster           Candidate[]
+  addressId        String             @db.Uuid
+  adminId          String             @unique @db.Uuid
+  PlacementRequest PlacementRequest[]
 }
 
-// Organization Model
-// An organization is any calling body. They have a profile, and
-// set of their call requests (called jobs). They also have admins to
-// monitor their page. Each Organization is within one district and one region.
-model Organization {
-    id         String           @id @default(uuid()) @db.Uuid
-    name       String           @default("") @db.Text
-    region     Region
-    type       OrganizationType
-    districtId String           @db.Uuid
-    district   District         @relation(fields: [districtId], references: [id])
-    addressId  String           @unique @db.Uuid
-    address    Address          @relation(fields: [addressId], references: [id])
-    admins     Admin[]
-    jobs       Job[]
-}
-
-// Admin Model
-// Represents an Organization, District, or Institution Admin. These handle
-// adding people to the placement directors, and monitoring new candidates in their area
-// as well as new call requests in their area.
 model Admin {
-    id             String        @id @default(uuid()) @db.Uuid
-    institutionId  String?       @db.Uuid
-    districtId     String?       @db.Uuid
-    organizationId String?       @db.Uuid
-    institution    Institution?  @relation(fields: [institutionId], references: [id])
-    district       District?     @relation(fields: [districtId], references: [id])
-    organization   Organization? @relation(fields: [organizationId], references: [id])
-    user           User          @relation(fields: [userId], references: [id])
-    userId         String        @unique
-    type           AdminType
+  id            String         @id @default(uuid()) @db.Uuid
+  user          User           @relation(fields: [userId], references: [id])
+  university    University?
+  userId        String
+  universityId  String?        @db.Uuid
+  callingEntity CallingEntity?
+  district      District?
 }
 
-// PlacementDirector Model
-// Represents a Placement Director or Coordinator. This position handles the acceptance
-// of new call requests and facilitates the call process between an organization and a 
-// candidate. Placement Directors have less permissions than Admins.
-model PlacementDirector {
-    id            String                @id @default(uuid()) @db.Uuid
-    email         String                @db.Text
-    district      District?             @relation(fields: [districtId], references: [id])
-    institution   Institution?          @relation(fields: [institutionId], references: [id])
-    districtId    String?               @db.Uuid
-    institutionId String?               @db.Uuid
-    user          User                  @relation(fields: [userId], references: [id])
-    userId        String                @unique
-    type          PlacementDirectorType
+model Member {
+  id              String         @id @default(uuid()) @db.Uuid
+  user            User           @relation(fields: [userId], references: [id])
+  university      University?    @relation(fields: [universityId], references: [id])
+  userId          String
+  universityId    String?        @db.Uuid
+  callingEntity   CallingEntity? @relation(fields: [callingEntityId], references: [id])
+  callingEntityId String?        @db.Uuid
+  district        District?      @relation(fields: [districtId], references: [id])
+  districtId      String?        @db.Uuid
 }
 
-model Job {
-    id                    String                     @id @default(uuid()) @db.Uuid
-    position              Position
-    organization          Organization               @relation(fields: [organizationId], references: [id])
-    organizationId        String                     @db.Uuid
-    status                JobStatus                  @default(Pending)
-    classroom             ClassroomType              @default(Deparmentalized)
-    grades                Grade[]
-    subjects              Subject[]
-    description           String                     @default("") @db.Text
-    startDate             DateTime?
-    isTenured             Boolean?
-    isFullTime            Boolean?
-    salary                Decimal                    @db.Money
-    socialSecurityContrib SocialSecurityContribution
-    housingAllowance      HousingAllowance?
-    healthCoverage        HealthCoverage?
-    healthPlan            HealthPlan?
-    monthsOfService       Int?                       @db.SmallInt
-    calls                 Call[]
-}
-
-model CandidateAddress {
-    id          String    @id @default(uuid()) @db.Uuid
-    candidateId String    @db.Uuid
-    addressId   String    @db.Uuid
-    address     Address   @relation(fields: [addressId], references: [id])
-    candidate   Candidate @relation(fields: [candidateId], references: [id])
-}
-
-model Address {
-    id               String             @id @default(uuid()) @db.Uuid
-    houseNumber      String             @default("") @db.Text
-    street           String             @default("") @db.Text
-    state            StateCode          @default(NE)
-    zipCode          String             @default("68434") @db.VarChar(5)
-    country          String             @default("US") @db.VarChar(3)
-    candidateAddress CandidateAddress[]
-    institution      Institution?
-    district         District?
-    organization     Organization?
-}
-
-model Education {
-    id             String      @id @default(uuid()) @db.Uuid
-    degree         String      @default("B.S. Education") @db.Text
-    graduationDate DateTime?
-    isGraduated    Boolean     @default(false)
-    candidate      Candidate   @relation(fields: [candidateId], references: [id])
-    institution    Institution @relation(fields: [institutionId], references: [id])
-    candidateId    String      @db.Uuid
-    institutionId  String      @db.Uuid
+model PlacementRequest {
+  id                         String                     @id @default(uuid()) @db.Uuid
+  position                   Position
+  callingEntity              CallingEntity              @relation(fields: [callingEntityId], references: [id])
+  district                   District                   @relation(fields: [districtId], references: [id])
+  status                     PlacementRequestStatus     @default(Pending)
+  classroom                  Classroom
+  grades                     Grade[]
+  subjects                   Subject[]
+  description                String
+  startDate                  DateTime
+  isTenured                  Boolean
+  isFullTime                 Boolean
+  salary                     Decimal                    @db.Money
+  socialSecurityContribution SocialSecurityContribution
+  healthCoverage             HealthCoverage?
+  healthPlan                 HealthPlan?
+  monthsOfService            Int?                       @db.SmallInt
+  housingAllowance           HousingAllowance           @relation(fields: [housingAllowanceId], references: [id])
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  callingEntityId            String                     @db.Uuid
+  districtId                 String                     @db.Uuid
+  housingAllowanceId         String                     @unique @db.Uuid
+  interestedCandidates       Call[]
 }
 
 model Call {
-    id          String     @id @default(uuid()) @db.Uuid
-    job         Job        @relation(fields: [jobId], references: [id])
-    jobId       String     @db.Uuid
-    candidate   Candidate  @relation(fields: [candidateId], references: [id])
-    candidateId String     @db.Uuid
-    status      CallStatus @default(Pending)
+  id                 String           @id @default(uuid()) @db.Uuid
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  candidate          Candidate        @relation(fields: [candidateId], references: [id])
+  status             CallStatus
+  placementRequestId String           @db.Uuid
+  candidateId        String           @db.Uuid
+}
+
+model Grade {
+  id                String             @id @default(uuid()) @db.Uuid
+  grade             String
+  placementRequests PlacementRequest[]
+}
+
+model Subject {
+  id                String             @id @default(uuid()) @db.Uuid
+  name              String
+  placementRequests PlacementRequest[]
+}
+
+model HousingAllowance {
+  id               String               @id @default(uuid()) @db.Uuid
+  type             HousingAllowanceType
+  stipend          Decimal?
+  placementRequest PlacementRequest?
+}
+
+model Address {
+  id              String          @id @default(uuid()) @db.Uuid
+  houseNumber     String          @map("house_number")
+  street          String
+  city            String
+  state           StateCode
+  country         String
+  zipCode         String          @map("zip_code")
+  candidates      Candidate[]
+  universities    University[]
+  callingEntities CallingEntity[]
+  districts       District[]
+}
+
+enum StateCode {
+  NE
+  AL
+  KY
+  OH
+  AK
+  LA
+  OK
+  AZ
+  ME
+  OR
+  AR
+  MD
+  PA
+  MA
+  CA
+  MI
+  RI
+  CO
+  MN
+  SC
+  CT
+  MS
+  SD
+  DE
+  MO
+  TN
+  DC
+  MT
+  TX
+  FL
+  GA
+  NV
+  UT
+  NH
+  VT
+  HI
+  NJ
+  VA
+  ID
+  NM
+  IL
+  NY
+  WA
+  IN
+  NC
+  WV
+  IA
+  ND
+  WI
+  KS
+  WY
+}
+
+enum Region {
+  Great_Lakes
+  Great_Plains
+  West_Southwest
+  East_Southwest
+  Central
+}
+
+enum Variant {
+  Recognized_Service_Organization
+  Elementary_School
+  Junior_High_School
+  Senior_High_School
+  K_12_School
+  K_8_School
+  Association_of_Schools
+  Church
+}
+
+enum Classroom {
+  Departmentalized
+  Self_Contained
+  Self_Contained_Multi_Grade
+}
+
+enum Position {
+  Deaconess
+  Lutheran_Teacher
+  Director_of_Christian_Education
+  Director_of_Parish_Music
+  Director_of_Christian_Outreach
+  Director_of_Church_Ministries
+  Director_of_Family_Life_Ministries
+}
+
+enum SocialSecurityContribution {
+  Employer_Pays_All
+  Employer_Pays_Part
+  Worker_Pays_All
+}
+
+enum HealthCoverage {
+  Worker_and_Children
+  Family
+  Worker_Only
+}
+
+enum HealthPlan {
+  Concordia_Plan
+  None
+  Other
+}
+
+enum HousingAllowanceType {
+  Salary
+  Stipend
+  Provided
+}
+
+enum PlacementRequestStatus {
+  Pending
+  Approved
+  Denied
+  Cancelled
+  Fulfilled
+}
+
+enum CallStatus {
+  Expressed
+  Declined
+  Extended
+  Accepted
 }

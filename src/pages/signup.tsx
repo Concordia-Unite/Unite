@@ -1,81 +1,99 @@
 /**
  * signup.tsx
  * Ian Kollipara
- * 2022.10.17
+ * 2022.10.26
  *
  * Sign Up Page
  */
 
-import { Title, Button, Text, Card, Stack, Grid } from "@mantine/core";
-import type { NextPage } from "next";
-import { DefaultLayout } from "../components/layouts/default";
+import { Stack, Title } from "@mantine/core";
+import { HomeLayout } from "../layouts";
+import { createStyles, ThemeIcon, Text, Group, Paper } from "@mantine/core";
+import { IconSchool, IconUser } from "@tabler/icons";
+import { LinkButton } from "../components/ui/LinkButton";
 
-const SignUp: NextPage = () => {
+const ICON_SIZE = 60;
+
+const useStyles = createStyles((theme) => ({
+  card: {
+    position: "relative",
+    overflow: "visible",
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xl * 1.5 + ICON_SIZE / 3,
+  },
+
+  icon: {
+    position: "absolute",
+    top: -ICON_SIZE / 3,
+    left: `calc(50% - ${ICON_SIZE / 2}px)`,
+  },
+
+  title: {
+    fontFamily: `${theme.fontFamily}`,
+    lineHeight: 1,
+  },
+}));
+
+export default function SignUp() {
+  const { classes } = useStyles();
+
   return (
-    <DefaultLayout>
-      <Stack align={"center"}>
-        <Title size={"xx-large"} align={"center"}>
-          Sign Up
-        </Title>
-        <Text>Choose the kind of Account to create!</Text>
+    <HomeLayout>
+      <Title align="center">Create an Account with Unite</Title>
+      <Stack mx={"xl"} px={"xl"}>
+        <Paper
+          radius={"md"}
+          withBorder
+          className={classes.card}
+          mt={ICON_SIZE / 3}
+        >
+          <ThemeIcon
+            className={classes.icon}
+            size={ICON_SIZE}
+            radius={ICON_SIZE}
+          >
+            <IconSchool />
+          </ThemeIcon>
+          <Text align="center" weight={700} className={classes.title}>
+            Create an Organization
+          </Text>
+          <Text color={"dimmed"} align="center" size={"md"}>
+            If you are a church or school looking to find LCMS Candidates, look
+            no further.
+          </Text>
+          <Group position="center">
+            <LinkButton variant="subtle" href="/organizations/create">
+              Create an Account Now!
+            </LinkButton>
+          </Group>
+        </Paper>
+        <Paper
+          radius={"md"}
+          withBorder
+          className={classes.card}
+          mt={ICON_SIZE / 3}
+        >
+          <ThemeIcon
+            className={classes.icon}
+            size={ICON_SIZE}
+            radius={ICON_SIZE}
+          >
+            <IconUser />
+          </ThemeIcon>
+          <Text align="center" weight={700} className={classes.title}>
+            Create a Candidate
+          </Text>
+          <Text color={"dimmed"} align="center" size={"md"}>
+            If you are a qualified LCMS Candidate and want to find your next
+            call, look no further.
+          </Text>
+          <Group position="center">
+            <LinkButton variant="subtle" href="/candidates/create">
+              Create an Account Now!
+            </LinkButton>
+          </Group>
+        </Paper>
       </Stack>
-      <Grid align={"center"} mx={0}>
-        <Grid.Col md={12} lg={6}>
-          <Card withBorder shadow={"lg"}>
-            <Stack align={"center"}>
-              <Title>Organization</Title>
-              <Text>
-                This is the calling body. These accounts belong to congregations
-                and schools with would like to call a Candidate. These accounts
-                can make Job Posts
-              </Text>
-              <Button variant={"filled"}>As an Organization</Button>
-            </Stack>
-          </Card>
-        </Grid.Col>
-        <Grid.Col md={12} lg={6}>
-          <Card withBorder shadow={"lg"}>
-            <Stack align={"center"}>
-              <Title>Candidate</Title>
-              <Text>
-                A Candidate is an potential hiring account. This is the account
-                for recent graduates or already rostered church workers.
-                Candidates may view their own profile and view available jobs.
-                They may also initiate a call to a position.
-              </Text>
-              <Button variant={"filled"}>As an Candidate</Button>
-            </Stack>
-          </Card>
-        </Grid.Col>
-        <Grid.Col md={12} lg={6}>
-          <Card withBorder shadow={"lg"}>
-            <Stack align={"center"}>
-              <Title>Institution</Title>
-              <Text>
-                Institutions are CUS schools, which produce Candidates. These
-                schools have directors for non-rostered placement, which is
-                these accounts can manage.
-              </Text>
-              <Button variant={"filled"}>As an Institution</Button>
-            </Stack>
-          </Card>
-        </Grid.Col>
-        <Grid.Col md={12} lg={6}>
-          <Card withBorder shadow={"lg"}>
-            <Stack align={"center"}>
-              <Title>District</Title>
-              <Text>
-                A District is one of the LCMS 35 Districts. Each district
-                manages a list of Candidates in their area, as well as approving
-                Job postings.
-              </Text>
-              <Button variant={"filled"}>As an District</Button>
-            </Stack>
-          </Card>
-        </Grid.Col>
-      </Grid>
-    </DefaultLayout>
+    </HomeLayout>
   );
-};
-
-export default SignUp;
+}
