@@ -1,0 +1,208 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
+}
+
+model Example {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                    String                   @id @default(cuid())
+  name                  String?
+  email                 String?                  @unique
+  emailVerified         DateTime?
+  image                 String?
+  accounts              Account[]
+  sessions              Session[]
+  candidate             Candidate?
+  is_admin              Boolean                  @default(false)
+  universityMemberOf    UniversityMembership?
+  districtMemberOf      DistrictMembership?
+  callingEntityMemberOf CallingEntityMembership?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model University {
+  id         Int                          @id @default(autoincrement())
+  name       String
+  positions  Position[]
+  candidates Candidate[]
+  members    UniversityMembership[]
+  requests   UniversityPlacementRequest[]
+}
+
+model Position {
+  position          String             @id @unique
+  universities      University[]
+  placementRequests PlacementRequest[]
+}
+
+model CallingEntity {
+  id         Int                       @id @default(autoincrement())
+  name       String
+  district   District                  @relation(fields: [districtId], references: [id])
+  members    CallingEntityMembership[]
+  districtId Int
+  requests   PlacementRequest[]
+}
+
+model District {
+  id         Int                        @id @default(autoincrement())
+  name       String
+  candidates Candidate[]
+  members    DistrictMembership[]
+  entities   CallingEntity[]
+  requests   DistrictPlacementRequest[]
+}
+
+model Candidate {
+  id           Int         @id @default(autoincrement())
+  user         User        @relation(fields: [userId], references: [id])
+  university   University? @relation(fields: [universityId], references: [id])
+  universityId Int?
+  district     District?   @relation(fields: [districtId], references: [id])
+  districtId   Int?
+  userId       String      @unique
+  calls        Call[]
+}
+
+model UniversityMembership {
+  id           Int        @id @default(autoincrement())
+  university   University @relation(fields: [universityId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  role         String
+  universityId Int
+  userId       String     @unique
+}
+
+model DistrictMembership {
+  id         Int      @id @default(autoincrement())
+  district   District @relation(fields: [districtId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  role       String
+  districtId Int
+  userId     String   @unique
+}
+
+model CallingEntityMembership {
+  id              Int           @id @default(autoincrement())
+  callingEntity   CallingEntity @relation(fields: [callingEntityId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  role            String
+  callingEntityId Int
+  userId          String        @unique
+}
+
+model PlacementRequest {
+  id                          Int                          @id @default(autoincrement())
+  requestee                   CallingEntity                @relation(fields: [callingEntityId], references: [id])
+  position                    Position                     @relation(fields: [positionPosition], references: [position])
+  grades                      Grade[]
+  callingEntityId             Int
+  positionPosition            String
+  subject                     String
+  description                 String
+  startDate                   DateTime                     @default(now())
+  isTenured                   Boolean
+  isFullTime                  Boolean
+  salary                      Decimal
+  socialSecurityContribution  String
+  healthCoverage              String?
+  healthPlan                  String?
+  monthsOfService             Int?
+  housingAllowance            HousingAllowance             @relation(fields: [housingAllowanceId], references: [id])
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  housingAllowanceId          Int                          @unique
+  calls                       Call[]
+  universityPlacementRequests UniversityPlacementRequest[]
+  districtPlacementRequests   DistrictPlacementRequest[]
+}
+
+model Grade {
+  grade            String             @id @unique
+  PlacementRequest PlacementRequest[]
+}
+
+model HousingAllowance {
+  id               Int               @id @default(autoincrement())
+  type             String
+  stipend          Decimal?
+  placementRequest PlacementRequest?
+}
+
+model Call {
+  id               Int              @id @default(autoincrement())
+  candidate        Candidate        @relation(fields: [candidateId], references: [id])
+  placementRequest PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status           String
+
+  candidateId        Int
+  placementRequestId Int
+}
+
+model UniversityPlacementRequest {
+  id                 Int              @id @default(autoincrement())
+  university         University       @relation(fields: [universityId], references: [id])
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status             String
+  universityId       Int
+  placementRequestId Int
+}
+
+model DistrictPlacementRequest {
+  id                 Int              @id @default(autoincrement())
+  district           District         @relation(fields: [districtId], references: [id])
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status             String
+  districtId         Int
+  placementRequestId Int
+}
