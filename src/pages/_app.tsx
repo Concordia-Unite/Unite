@@ -1,10 +1,12 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { NotificationsProvider } from "@mantine/notifications";
 
 import { trpc } from "../utils/trpc";
-
-import "../styles/globals.css";
+import { RouterTransition } from "../components/ui/RouterTransition";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -12,7 +14,14 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <NotificationsProvider>
+          <ModalsProvider>
+            <RouterTransition />
+            <Component {...pageProps} />
+          </ModalsProvider>
+        </NotificationsProvider>
+      </MantineProvider>
     </SessionProvider>
   );
 };
