@@ -1,5 +1,5 @@
 {
-  "name": "Unite",
+  "name": "unite",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,8 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "cypress": "cypress open"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -47,6 +48,7 @@
     "@types/react-dom": "^18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
+    "cypress": "^11.2.0",
     "eslint": "^8.26.0",
     "eslint-config-next": "13.0.2",
     "hygen": "^6.2.11",

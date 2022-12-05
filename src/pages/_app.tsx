@@ -4,8 +4,9 @@ import { SessionProvider } from "next-auth/react";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
+import { theme } from "@src/types/theme";
 
-import { trpc } from "../utils/trpc";
+import { trpc } from "../services/trpc";
 import { RouterTransition } from "../components/ui/RouterTransition";
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -14,7 +15,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <MantineProvider withGlobalStyles withNormalizeCSS>
+      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
         <NotificationsProvider>
           <ModalsProvider>
             <RouterTransition />
