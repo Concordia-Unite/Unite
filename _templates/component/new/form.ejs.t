@@ -5,9 +5,9 @@ to: src/components/form/<%= h.changeCase.pascal(name) %>.tsx
 import { createStyles } from "@mantine/core"
 
 
-const useStyles = createStyles((theme) => {
+const useStyles = createStyles((theme) => ({
     //
-});
+}));
 
 interface Props {
 

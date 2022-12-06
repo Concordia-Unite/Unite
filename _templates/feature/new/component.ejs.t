@@ -3,9 +3,9 @@ to: src/features/<%= h.changeCase.param(feature) %>/<%= h.changeCase.pascal(name
 ---
 import { createStyles } from "@mantine/core"
 
-const useStyles = createStyles((theme) => {
+const useStyles = createStyles((theme) => ({
     //
-});
+}));
 
 interface Props {
 
