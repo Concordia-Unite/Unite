@@ -1,5 +1,5 @@
 ---
-to: src/features/<%= h.changeCase.param(feature) %>/<%= h.changeCase.pascal(name) %>.tsx
+to: src/features/<%= h.changeCase.param(feature) %>/components/<%= h.changeCase.pascal(name) %>.tsx
 ---
 import { createStyles } from "@mantine/core"
 

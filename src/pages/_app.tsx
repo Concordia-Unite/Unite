@@ -16,7 +16,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <NotificationsProvider>
+        <NotificationsProvider position="top-center">
           <ModalsProvider>
             <RouterTransition />
             <Component {...pageProps} />

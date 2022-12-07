@@ -17,7 +17,7 @@ export function Header(props: Props) {
   const { classes } = useStyles();
   return (
     <>
-      <BaseHeader className={classes.base} height={65}>
+      <BaseHeader className={classes.base} height={80}>
         <Title>Concordia Unite</Title>
       </BaseHeader>
     </>
