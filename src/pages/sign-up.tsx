@@ -1,4 +1,3 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { Avatar, createStyles, Paper, Text, Title } from "@mantine/core";
 import { HomeLayout } from "@layouts/HomeLayout";
 import { LinkButton } from "@ui/LinkButton";
@@ -43,12 +42,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   //
-// };
-
 export default function SignUp() {
-  //   props: InferGetServerSidePropsType<typeof getServerSideProps>
   const { classes } = useStyles();
 
   return (
