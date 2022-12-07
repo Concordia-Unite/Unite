@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Head from "next/head";
 import { AppShell, Avatar, createStyles, Navbar } from "@mantine/core";
 import { NavbarLink } from "@ui/NavbarLink";
-import { IconHome2, IconLogout } from "@tabler/icons";
+import { IconHome2, IconLogout, IconSettings } from "@tabler/icons";
 import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 
@@ -48,6 +48,11 @@ export function CandidateDashboardLayout(props: Props) {
                 icon={IconHome2}
                 label="Home"
                 onClick={() => router.push("/candidates/me")}
+              />
+              <NavbarLink
+                icon={IconSettings}
+                label="Settings"
+                onClick={() => router.push("/candidates/settings")}
               />
             </Navbar.Section>
             <Navbar.Section mt={50}>

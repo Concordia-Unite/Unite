@@ -16,6 +16,13 @@ const useStyles = createStyles((theme) => ({
     height: "100vh",
     placeItems: "center",
   },
+  dashboard: {
+    height: "100%",
+    width: "100%",
+    [theme.fn.largerThan("lg")]: {
+      width: "60wv",
+    },
+  },
 }));
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -37,7 +44,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Dashboard() {
-  _: InferGetServerSidePropsType<typeof getServerSideProps>;
+  // _: InferGetServerSidePropsType<typeof getServerSideProps>;
   useSession({ required: true });
   const { classes } = useStyles();
   const { data: candidate } = trpc.candidate.getCurrent.useQuery();
@@ -52,9 +59,14 @@ export default function Dashboard() {
     );
 
   return (
-    <CandidateDashboardLayout image={candidate.user.image} title="Dashboard">
-      <Title order={1}>Dashboard</Title>
-      <Title order={5}>Welcome {candidate.user.name}!</Title>
+    <CandidateDashboardLayout
+      image={candidate.user.image ?? ""}
+      title="Dashboard"
+    >
+      <main className={classes.dashboard}>
+        <Title order={1}>Dashboard</Title>
+        <Title order={5}>Welcome {candidate.user.name}!</Title>
+      </main>
     </CandidateDashboardLayout>
   );
 }

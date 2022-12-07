@@ -36,6 +36,42 @@ export class CandidateRepo {
     });
   }
 
+  public async updateRosterStatus(
+    userId: string,
+    universityId?: number,
+    districtId?: number
+  ) {
+    if (universityId) {
+      return await this.client.candidate.update({
+        where: {
+          userId,
+        },
+        data: {
+          universityId: universityId,
+        },
+        include: {
+          user: true,
+          university: true,
+          district: true,
+        },
+      });
+    } else {
+      return await this.client.candidate.update({
+        where: {
+          id: candidateId,
+        },
+        data: {
+          districtId: districtId,
+        },
+        include: {
+          user: true,
+          university: true,
+          district: true,
+        },
+      });
+    }
+  }
+
   public async createNonRosteredCandidate(
     userId: string,
     universityId: number

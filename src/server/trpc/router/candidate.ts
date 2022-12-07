@@ -34,4 +34,31 @@ export const candidateRouter = router({
         );
       }
     }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        wasRostered: z.boolean(),
+        districtId: z.number().nullable(),
+        universityId: z.number().nullable(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const repo = new CandidateRepo(ctx.prisma);
+
+      repo.updateUserSettings(ctx.session.user.id, input.name);
+      if (input.wasRostered && input.districtId) {
+        return await repo.updateRosterStatus(
+          ctx.session.user.id,
+          undefined,
+          input.districtId
+        );
+      } else {
+        return await repo.updateRosterStatus(
+          ctx.session.user.id,
+          input.universityId as number
+        );
+      }
+    }),
 });
