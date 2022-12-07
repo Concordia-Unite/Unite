@@ -16,6 +16,7 @@ import { UniversitySelect } from "@form/UniversitySelect";
 import { useNotify } from "@hooks/useNotify";
 import { useDistricts } from "@hooks/useDistricts";
 import { useUniversities } from "@hooks/useUniversities";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   layout: {
@@ -67,6 +68,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function CandidateCreate() {
   // _: InferGetServerSidePropsType<typeof getServerSideProps>
   const { classes } = useStyles();
+  const router = useRouter();
   const { mutateAsync: create } = trpc.candidate.createNew.useMutation();
   const { districts } = useDistricts();
   const { universities } = useUniversities();
@@ -84,7 +86,11 @@ export default function CandidateCreate() {
       <main className={classes.layout}>
         <Title order={1}>Create Your Candidate Profile</Title>
         <form
-          onSubmit={form.onSubmit((values) => notify(create({ ...values })))}
+          onSubmit={form.onSubmit((values) =>
+            notify(create({ ...values })).then(() =>
+              router.push("/candidates/me")
+            )
+          )}
         >
           <PersonalInfoInput form={form} />
           {form.values.wasRostered ? (
