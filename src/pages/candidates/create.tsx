@@ -1,4 +1,4 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type { GetServerSideProps } from "next";
 import { Button, createStyles, Title } from "@mantine/core";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "src/server/trpc/router/_app";
