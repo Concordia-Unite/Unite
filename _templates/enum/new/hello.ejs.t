@@ -1,7 +1,7 @@
 ---
-to: src/types/<%= name %>.ts
+to: src/types/enums/<%= name %>.ts
 ---
 
-export enum <% Name %> {
+export enum <%= Name %> {
     //
 }

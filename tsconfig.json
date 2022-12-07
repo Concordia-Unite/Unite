@@ -24,8 +24,9 @@
       "@layouts/*": ["src/layouts/*"],
       "@services/*": ["src/services/*"],
       "@trpc": ["src/services/trpc.ts"],
+      "@enums/*": ["src/types/enums/*"],
       "@src/types/*": ["src/types/*"],
-      "@server/*": ["src/server/common/*"]
+      "@server/*": ["src/server/common/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
