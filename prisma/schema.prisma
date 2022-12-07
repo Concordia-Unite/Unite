@@ -89,6 +89,7 @@ model CallingEntity {
   id         Int                       @id @default(autoincrement())
   name       String
   district   District                  @relation(fields: [districtId], references: [id])
+  variant    String
   members    CallingEntityMembership[]
   districtId Int
   requests   PlacementRequest[]
@@ -97,6 +98,7 @@ model CallingEntity {
 model District {
   id         Int                        @id @default(autoincrement())
   name       String
+  region     String
   candidates Candidate[]
   members    DistrictMembership[]
   entities   CallingEntity[]
@@ -164,7 +166,7 @@ model PlacementRequest {
   housingAllowanceId          Int                          @unique
   calls                       Call[]
   universityPlacementRequests UniversityPlacementRequest[]
-  districtPlacementRequests   DistrictPlacementRequest[]
+  districtPlacementRequest    DistrictPlacementRequest?
 }
 
 model Grade {
@@ -204,5 +206,5 @@ model DistrictPlacementRequest {
   placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
   status             String
   districtId         Int
-  placementRequestId Int
+  placementRequestId Int              @unique
 }
