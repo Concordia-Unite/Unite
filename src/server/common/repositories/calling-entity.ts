@@ -52,4 +52,63 @@ export class CallingEntityRepo {
         },
       });
   }
+
+  public async addMember(
+    email: string,
+    callingEntityId: number,
+    role: Role,
+    name?: string
+  ) {
+    return await this.client.callingEntityMembership.create({
+      data: {
+        user: {
+          connectOrCreate: {
+            where: {
+              email,
+            },
+            create: {
+              name: name ?? "",
+              email,
+            },
+          },
+        },
+        callingEntity: {
+          connect: {
+            id: callingEntityId,
+          },
+        },
+        role: role.valueOf(),
+      },
+    });
+  }
+
+  public async updateMemberRole(userId: string, role: Role) {
+    return await this.client.callingEntityMembership.update({
+      where: {
+        userId,
+      },
+      data: {
+        role: role.valueOf(),
+      },
+    });
+  }
+
+  public async deleteMember(userId: string) {
+    return await this.client.callingEntityMembership.delete({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  public async getMembers(callingEntityId: number) {
+    return await this.client.callingEntityMembership.findMany({
+      where: {
+        callingEntityId,
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 }
