@@ -2,7 +2,14 @@ import type { ReactNode } from "react";
 import Head from "next/head";
 import { AppShell, Avatar, createStyles, Navbar, NavLink } from "@mantine/core";
 import { NavbarLink } from "@ui/NavbarLink";
-import { IconHome2, IconLogout, IconSettings, IconUsers } from "@tabler/icons";
+import {
+  IconHome2,
+  IconListSearch,
+  IconLogout,
+  IconSearch,
+  IconSettings,
+  IconUsers,
+} from "@tabler/icons";
 import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 
@@ -53,6 +60,13 @@ export function CallingEntityDashboardLayout(props: Props) {
                 icon={IconUsers}
                 label="Members"
                 onClick={() => router.push("/calling-entities/members")}
+              />
+              <NavbarLink
+                icon={IconListSearch}
+                label="Create Placement Request"
+                onClick={() =>
+                  router.push("/calling-entities/placement-requests/create")
+                }
               />
               <NavbarLink
                 icon={IconSettings}

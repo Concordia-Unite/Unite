@@ -4,6 +4,10 @@ export class UniversityRepo {
   public constructor(private client: PrismaClient) {}
 
   public async all() {
-    return await this.client.university.findMany();
+    return await this.client.university.findMany({
+      include: {
+        positions: true,
+      },
+    });
   }
 }

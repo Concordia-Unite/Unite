@@ -11,9 +11,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-interface Props {}
-
-export function Header(props: Props) {
+export function Header() {
   const { classes } = useStyles();
   return (
     <>

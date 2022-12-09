@@ -1,4 +1,10 @@
+import { Grade } from "@enums/grade";
+import { HealthCoverage } from "@enums/health-coverage";
+import { HealthPlan } from "@enums/health-plan";
+import { HousingAllowanceVariant } from "@enums/housing-allowance-variant";
+import { Position } from "@enums/position";
 import { Role } from "@enums/role";
+import { SocialSecurityContribution } from "@enums/social-security-contribution";
 import { Variant } from "@enums/variant";
 import { CallingEntityRepo } from "@server/repositories/calling-entity";
 import { z } from "zod";
@@ -53,7 +59,7 @@ export const callingEntityRouter = router({
           await ctx.prisma.user
             .findUnique({ where: { id: ctx.session.user.id } })
             .callingEntityMemberOf()
-        )?.role === "admin"
+        )?.role === Role.Admin.valueOf()
       ) {
         return await new CallingEntityRepo(ctx.prisma).addMember(
           input.email,
@@ -76,7 +82,7 @@ export const callingEntityRouter = router({
           await ctx.prisma.user
             .findUnique({ where: { id: ctx.session.user.id } })
             .callingEntityMemberOf()
-        )?.role === "admin"
+        )?.role === Role.Admin.valueOf()
       ) {
         return await new CallingEntityRepo(ctx.prisma).deleteMember(
           input.userId
@@ -97,12 +103,62 @@ export const callingEntityRouter = router({
           await ctx.prisma.user
             .findUnique({ where: { id: ctx.session.user.id } })
             .callingEntityMemberOf()
-        )?.role === "admin"
+        )?.role === Role.Admin.valueOf()
       ) {
         return await new CallingEntityRepo(ctx.prisma).updateMemberRole(
           input.userId,
           input.role
         );
       }
+    }),
+
+  createPlacementRequest: protectedProcedure
+    .input(
+      z.object({
+        callingEntityId: z.number(),
+        districtId: z.number(),
+        position: z.nativeEnum(Position),
+        grades: z.nativeEnum(Grade).array(),
+        subject: z.string(),
+        description: z.string(),
+        isTenured: z.boolean(),
+        isFullTime: z.boolean(),
+        salary: z.number(),
+        socialSecurityContribution: z.nativeEnum(SocialSecurityContribution),
+        housingAllowance: z.object({
+          type: z.nativeEnum(HousingAllowanceVariant),
+          stipend: z.number().or(z.undefined()),
+        }),
+        universityIds: z.number().array(),
+        healthCoverage: z.nativeEnum(HealthCoverage).or(z.undefined()),
+        healthPlan: z.nativeEnum(HealthPlan).or(z.undefined()),
+        monthsOfService: z.number().or(z.undefined()),
+        startDate: z.date().or(z.undefined()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const repo = new CallingEntityRepo(ctx.prisma);
+
+      const districtId =
+        (await repo.getFromUserId(ctx.session.user.id))?.districtId ?? -1;
+
+      return await repo.createPlacementRequest(
+        input.callingEntityId,
+        districtId,
+        input.position,
+        input.grades,
+        input.subject,
+        input.description,
+        input.isTenured,
+        input.isFullTime,
+        input.salary,
+        input.socialSecurityContribution,
+        input.housingAllowance,
+        input.universityIds,
+        input.healthCoverage,
+        input.healthPlan,
+        input.monthsOfService,
+        input.startDate
+      );
     }),
 });

@@ -8,8 +8,9 @@ import { theme } from "@src/types/theme";
 
 import { trpc } from "../services/trpc";
 import { RouterTransition } from "../components/ui/RouterTransition";
+import "@services/superjson";
 
-const MyApp: AppType<{ session: Session | null }> = ({
+const Unite: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
@@ -27,4 +28,4 @@ const MyApp: AppType<{ session: Session | null }> = ({
   );
 };
 
-export default trpc.withTRPC(MyApp);
+export default trpc.withTRPC(Unite);
