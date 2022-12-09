@@ -2,6 +2,6 @@
 to: src/types/enums/<%= name %>.ts
 ---
 
-export enum <%= Name %> {
+export enum <%= h.changeCase.pascal(name) %> {
     //
 }
