@@ -1,25 +1,16 @@
 import { router } from "../trpc";
 import { authRouter } from "./auth";
-import { exampleRouter } from "./example";
-import { universityRouter } from "./university";
-import { districtRouter } from "./district";
+import { callingEntityRouter } from "./calling-entity";
 import { candidateRouter } from "./candidate";
-import { callingEntityRouter } from "./callingEntity";
-import { placementRequestRouter } from "./placementRequest";
-import { subjectRouter } from "./subject";
-import { gradeRouter } from "./grade";
-import "../../../utils/superjson";
+import { districtRouter } from "./district";
+import { universityRouter } from "./university";
 
 export const appRouter = router({
-  example: exampleRouter,
   auth: authRouter,
-  university: universityRouter,
-  district: districtRouter,
-  candidate: candidateRouter,
   callingEntity: callingEntityRouter,
-  placementRequest: placementRequestRouter,
-  subject: subjectRouter,
-  grade: gradeRouter,
+  candidate: candidateRouter,
+  district: districtRouter,
+  university: universityRouter,
 });
 
 // export type definition of API

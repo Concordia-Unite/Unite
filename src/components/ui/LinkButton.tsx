@@ -1,15 +1,21 @@
 import type { ButtonProps } from "@mantine/core";
-import { Button } from "@mantine/core";
+import { Button, createStyles } from "@mantine/core";
 import Link from "next/link";
 
-interface LinkButtonProps extends ButtonProps {
-  href: string
+const useStyles = createStyles((theme) => ({
+  //
+}));
+
+interface Props extends ButtonProps {
+  href: string;
 }
 
-export function LinkButton({ href, ...rest }: LinkButtonProps) {
+export function LinkButton({ href, ...rest }: Props) {
   return (
     <>
-      <Button component={Link} href={href} {...rest} />
+      <Link passHref href={href}>
+        <Button component="a" {...rest} />
+      </Link>
     </>
-  )
+  );
 }

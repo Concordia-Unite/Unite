@@ -1,59 +1,64 @@
-import { protectedProcedure, router } from "../trpc";
+import { CandidateRepo } from "@server/repositories/candidate";
 import { z } from "zod";
-import { StateCode } from "@prisma/client";
+
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const candidateRouter = router({
-  create: protectedProcedure
+  getCurrent: protectedProcedure.query(async ({ ctx }) => {
+    return await new CandidateRepo(ctx.prisma).getByUserId(ctx.session.user.id);
+  }),
+
+  createNew: protectedProcedure
     .input(
       z.object({
-        firstName: z.string(),
-        lastName: z.string(),
-        email: z.string().email(),
-        isRostered: z.boolean(),
-        universityId: z.string(),
-        districtId: z.string(),
-        description: z.string(),
-        address: z.object({
-          houseNumber: z.string().regex(/[0-9]/),
-          street: z.string(),
-          city: z.string(),
-          state: z.nativeEnum(StateCode),
-          country: z.string(),
-          zipCode: z.string().regex(/[0-9]/),
-        }),
+        name: z.string(),
+        wasRostered: z.boolean(),
+        districtId: z.number().nullable(),
+        universityId: z.number().nullable(),
       })
     )
-    .mutation(({ input, ctx }) =>
-      ctx.prisma.candidate.create({
-        data: {
-          firstName: input.firstName,
-          lastName: input.lastName,
-          user: {
-            connect: {
-              id: ctx.session.user.id,
-            },
-          },
-          biography: input.description,
-          profilePictureUrl: ctx.session.user.image ?? "",
-          email: input.email,
-          address: {
-            create: input.address,
-          },
-          isRostered: input.isRostered,
-          [input.isRostered ? "district" : "university"]: {
-            connect: {
-              id: input.isRostered ? input.districtId : input.universityId,
-            },
-          },
-        },
-      })
-    ),
+    .mutation(async ({ input, ctx }) => {
+      const repo = new CandidateRepo(ctx.prisma);
 
-  getCurrent: protectedProcedure.query(({ ctx }) =>
-    ctx.prisma.candidate.findUnique({
-      where: {
-        userId: ctx.session.user.id,
-      },
-    })
-  ),
+      if (input.wasRostered && input.districtId) {
+        repo.updateUserSettings(ctx.session.user.id, input.name);
+        return await repo.createRosteredCandidate(
+          ctx.session.user.id,
+          input.districtId
+        );
+      } else {
+        repo.updateUserSettings(ctx.session.user.id, input.name);
+        return await repo.createNonRosteredCandidate(
+          ctx.session.user.id,
+          input.universityId as number
+        );
+      }
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        wasRostered: z.boolean(),
+        districtId: z.number().nullable(),
+        universityId: z.number().nullable(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const repo = new CandidateRepo(ctx.prisma);
+
+      repo.updateUserSettings(ctx.session.user.id, input.name);
+      if (input.wasRostered && input.districtId) {
+        return await repo.updateRosterStatus(
+          ctx.session.user.id,
+          undefined,
+          input.districtId
+        );
+      } else {
+        return await repo.updateRosterStatus(
+          ctx.session.user.id,
+          input.universityId as number
+        );
+      }
+    }),
 });

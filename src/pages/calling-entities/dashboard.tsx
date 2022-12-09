@@ -1,0 +1,61 @@
+import type { GetServerSideProps } from "next";
+import { createStyles, Loader, Title } from "@mantine/core";
+import { useSession } from "next-auth/react";
+import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
+
+const useStyles = createStyles((theme) => ({
+  loader: {
+    display: "grid",
+    height: "100vh",
+    placeItems: "center",
+  },
+  dashboard: {
+    height: "100%",
+    width: "100%",
+    [theme.fn.largerThan("lg")]: {
+      width: "60wv",
+    },
+  },
+}));
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const ssg = await createTRPCSSGProxy(context);
+
+  await assertHasCallingEntity({ ssg });
+
+  await ssg.auth.getSession.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+    },
+  };
+};
+
+export default function Dashboard() {
+  const { data: session } = useSession({ required: true });
+
+  const { classes } = useStyles();
+  const { data: entity } = trpc.callingEntity.getCurrent.useQuery();
+
+  if (!entity || !session)
+    return (
+      <CallingEntityDashboardLayout title="Calling Entity Dashboard">
+        <main className={classes.loader}>
+          <Loader variant="bars" size={"xl"} />
+        </main>
+      </CallingEntityDashboardLayout>
+    );
+
+  return (
+    <CallingEntityDashboardLayout
+      image={session.user?.image ?? ""}
+      title={`${entity.name} Dashboard`}
+    >
+      <Title order={1}>Dashboard</Title>
+      <Title order={4}>For {entity.name}</Title>
+    </CallingEntityDashboardLayout>
+  );
+}

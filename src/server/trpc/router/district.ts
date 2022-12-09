@@ -1,12 +1,10 @@
-import { protectedProcedure, router } from "../trpc";
+import { DistrictRepo } from "@server/repositories/district";
+import { z } from "zod";
+
+import { router, publicProcedure, protectedProcedure } from "../trpc";
 
 export const districtRouter = router({
-  getAll: protectedProcedure.query(({ ctx }) =>
-    ctx.prisma.district.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    })
-  ),
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return await new DistrictRepo(ctx.prisma).all();
+  }),
 });

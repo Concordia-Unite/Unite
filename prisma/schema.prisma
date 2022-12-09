@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgres"
+  provider = "sqlite"
   // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -26,13 +26,13 @@ model Account {
   userId            String
   type              String
   provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String? // @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -41,23 +41,25 @@ model Account {
 
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
+  sessionToken String   @unique
+  userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  emailVerified DateTime?  @map("email_verified")
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  candidate     Candidate?
-  Admin         Admin[]
-  Member        Member[]
+  id                    String                   @id @default(cuid())
+  name                  String?
+  email                 String?                  @unique
+  emailVerified         DateTime?
+  image                 String?
+  accounts              Account[]
+  sessions              Session[]
+  candidate             Candidate?
+  is_admin              Boolean                  @default(false)
+  universityMemberOf    UniversityMembership?
+  districtMemberOf      DistrictMembership?
+  callingEntityMemberOf CallingEntityMembership?
 }
 
 model VerificationToken {
@@ -68,283 +70,141 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Candidate {
-  id                String      @id @default(uuid()) @db.Uuid
-  user              User        @relation(fields: [userId], references: [id])
-  userId            String      @unique
-  firstName         String      @map("first_name")
-  lastName          String      @map("last_name")
-  biography         String
-  profilePictureUrl String      @map("profile_picture_url")
-  email             String
-  address           Address     @relation(fields: [addressId], references: [id])
-  addressId         String      @map("address_id") @db.Uuid
-  isRostered        Boolean     @map("is_rostered")
-  university        University? @relation(fields: [universityId], references: [id])
-  universityId      String?     @db.Uuid
-  district          District?   @relation(fields: [districtId], references: [id])
-  districtId        String?     @db.Uuid
-  disposedTo        Call[]
+model University {
+  id         Int                          @id @default(autoincrement())
+  name       String
+  positions  Position[]
+  candidates Candidate[]
+  members    UniversityMembership[]
+  requests   UniversityPlacementRequest[]
 }
 
-model University {
-  id        String      @id @default(uuid()) @db.Uuid
-  name      String
-  address   Address     @relation(fields: [addressId], references: [id])
-  positions Position[]
-  website   String
-  admin     Admin       @relation(fields: [adminId], references: [id])
-  members   Member[]
-  roster    Candidate[]
-  addressId String      @db.Uuid
-  adminId   String      @unique @db.Uuid
+model Position {
+  position          String             @id @unique
+  universities      University[]
+  placementRequests PlacementRequest[]
 }
 
 model CallingEntity {
-  id                String             @id @default(uuid()) @db.Uuid
-  name              String
-  region            Region
-  variant           Variant
-  address           Address            @relation(fields: [addressId], references: [id])
-  admin             Admin              @relation(fields: [adminId], references: [id])
-  members           Member[]
-  addressId         String             @db.Uuid
-  adminId           String             @unique @db.Uuid
-  district          District?          @relation(fields: [districtId], references: [id])
-  districtId        String?            @db.Uuid
-  placementRequests PlacementRequest[]
+  id         Int                       @id @default(autoincrement())
+  name       String
+  district   District                  @relation(fields: [districtId], references: [id])
+  variant    String
+  members    CallingEntityMembership[]
+  districtId Int
+  requests   PlacementRequest[]
 }
 
 model District {
-  id               String             @id @default(uuid()) @db.Uuid
-  name             String
-  address          Address            @relation(fields: [addressId], references: [id])
-  website          String
-  region           Region
-  admin            Admin              @relation(fields: [adminId], references: [id])
-  members          Member[]
-  entities         CallingEntity[]
-  roster           Candidate[]
-  addressId        String             @db.Uuid
-  adminId          String             @unique @db.Uuid
-  PlacementRequest PlacementRequest[]
+  id         Int                        @id @default(autoincrement())
+  name       String
+  region     String
+  candidates Candidate[]
+  members    DistrictMembership[]
+  entities   CallingEntity[]
+  requests   DistrictPlacementRequest[]
 }
 
-model Admin {
-  id            String         @id @default(uuid()) @db.Uuid
-  user          User           @relation(fields: [userId], references: [id])
-  university    University?
-  userId        String
-  universityId  String?        @db.Uuid
-  callingEntity CallingEntity?
-  district      District?
+model Candidate {
+  id           Int         @id @default(autoincrement())
+  user         User        @relation(fields: [userId], references: [id])
+  university   University? @relation(fields: [universityId], references: [id])
+  universityId Int?
+  district     District?   @relation(fields: [districtId], references: [id])
+  districtId   Int?
+  userId       String      @unique
+  calls        Call[]
 }
 
-model Member {
-  id              String         @id @default(uuid()) @db.Uuid
-  user            User           @relation(fields: [userId], references: [id])
-  university      University?    @relation(fields: [universityId], references: [id])
-  userId          String
-  universityId    String?        @db.Uuid
-  callingEntity   CallingEntity? @relation(fields: [callingEntityId], references: [id])
-  callingEntityId String?        @db.Uuid
-  district        District?      @relation(fields: [districtId], references: [id])
-  districtId      String?        @db.Uuid
+model UniversityMembership {
+  id           Int        @id @default(autoincrement())
+  university   University @relation(fields: [universityId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  role         String
+  universityId Int
+  userId       String     @unique
+}
+
+model DistrictMembership {
+  id         Int      @id @default(autoincrement())
+  district   District @relation(fields: [districtId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  role       String
+  districtId Int
+  userId     String   @unique
+}
+
+model CallingEntityMembership {
+  id              Int           @id @default(autoincrement())
+  callingEntity   CallingEntity @relation(fields: [callingEntityId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  role            String
+  callingEntityId Int
+  userId          String        @unique
 }
 
 model PlacementRequest {
-  id                         String                     @id @default(uuid()) @db.Uuid
-  position                   Position
-  callingEntity              CallingEntity              @relation(fields: [callingEntityId], references: [id])
-  district                   District                   @relation(fields: [districtId], references: [id])
-  status                     PlacementRequestStatus     @default(Pending)
-  classroom                  Classroom
-  grades                     Grade[]
-  subjects                   Subject[]
-  description                String
-  startDate                  DateTime
-  isTenured                  Boolean
-  isFullTime                 Boolean
-  salary                     Decimal                    @db.Money
-  socialSecurityContribution SocialSecurityContribution
-  healthCoverage             HealthCoverage?
-  healthPlan                 HealthPlan?
-  monthsOfService            Int?                       @db.SmallInt
-  housingAllowance           HousingAllowance           @relation(fields: [housingAllowanceId], references: [id])
-  createdAt                  DateTime                   @default(now())
-  updatedAt                  DateTime                   @updatedAt
-  callingEntityId            String                     @db.Uuid
-  districtId                 String                     @db.Uuid
-  housingAllowanceId         String                     @unique @db.Uuid
-  interestedCandidates       Call[]
-}
-
-model Call {
-  id                 String           @id @default(uuid()) @db.Uuid
-  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
-  candidate          Candidate        @relation(fields: [candidateId], references: [id])
-  status             CallStatus
-  placementRequestId String           @db.Uuid
-  candidateId        String           @db.Uuid
+  id                          Int                          @id @default(autoincrement())
+  requestee                   CallingEntity                @relation(fields: [callingEntityId], references: [id])
+  position                    Position                     @relation(fields: [positionPosition], references: [position])
+  grades                      Grade[]
+  callingEntityId             Int
+  positionPosition            String
+  subject                     String
+  description                 String
+  startDate                   DateTime                     @default(now())
+  isTenured                   Boolean
+  isFullTime                  Boolean
+  salary                      Decimal
+  socialSecurityContribution  String
+  healthCoverage              String?
+  healthPlan                  String?
+  monthsOfService             Int?
+  housingAllowance            HousingAllowance             @relation(fields: [housingAllowanceId], references: [id])
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  housingAllowanceId          Int                          @unique
+  calls                       Call[]
+  universityPlacementRequests UniversityPlacementRequest[]
+  districtPlacementRequest    DistrictPlacementRequest?
 }
 
 model Grade {
-  id                String             @id @default(uuid()) @db.Uuid
-  grade             String
-  placementRequests PlacementRequest[]
-}
-
-model Subject {
-  id                String             @id @default(uuid()) @db.Uuid
-  name              String
-  placementRequests PlacementRequest[]
+  grade            String             @id @unique
+  PlacementRequest PlacementRequest[]
 }
 
 model HousingAllowance {
-  id               String               @id @default(uuid()) @db.Uuid
-  type             HousingAllowanceType
+  id               Int               @id @default(autoincrement())
+  type             String
   stipend          Decimal?
   placementRequest PlacementRequest?
 }
 
-model Address {
-  id              String          @id @default(uuid()) @db.Uuid
-  houseNumber     String          @map("house_number")
-  street          String
-  city            String
-  state           StateCode
-  country         String
-  zipCode         String          @map("zip_code")
-  candidates      Candidate[]
-  universities    University[]
-  callingEntities CallingEntity[]
-  districts       District[]
+model Call {
+  id               Int              @id @default(autoincrement())
+  candidate        Candidate        @relation(fields: [candidateId], references: [id])
+  placementRequest PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status           String
+
+  candidateId        Int
+  placementRequestId Int
 }
 
-enum StateCode {
-  NE
-  AL
-  KY
-  OH
-  AK
-  LA
-  OK
-  AZ
-  ME
-  OR
-  AR
-  MD
-  PA
-  MA
-  CA
-  MI
-  RI
-  CO
-  MN
-  SC
-  CT
-  MS
-  SD
-  DE
-  MO
-  TN
-  DC
-  MT
-  TX
-  FL
-  GA
-  NV
-  UT
-  NH
-  VT
-  HI
-  NJ
-  VA
-  ID
-  NM
-  IL
-  NY
-  WA
-  IN
-  NC
-  WV
-  IA
-  ND
-  WI
-  KS
-  WY
+model UniversityPlacementRequest {
+  id                 Int              @id @default(autoincrement())
+  university         University       @relation(fields: [universityId], references: [id])
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status             String
+  universityId       Int
+  placementRequestId Int
 }
 
-enum Region {
-  Great_Lakes
-  Great_Plains
-  West_Southwest
-  East_Southwest
-  Central
-}
-
-enum Variant {
-  Recognized_Service_Organization
-  Elementary_School
-  Junior_High_School
-  Senior_High_School
-  K_12_School
-  K_8_School
-  Association_of_Schools
-  Church
-}
-
-enum Classroom {
-  Departmentalized
-  Self_Contained
-  Self_Contained_Multi_Grade
-}
-
-enum Position {
-  Deaconess
-  Lutheran_Teacher
-  Director_of_Christian_Education
-  Director_of_Parish_Music
-  Director_of_Christian_Outreach
-  Director_of_Church_Ministries
-  Director_of_Family_Life_Ministries
-}
-
-enum SocialSecurityContribution {
-  Employer_Pays_All
-  Employer_Pays_Part
-  Worker_Pays_All
-}
-
-enum HealthCoverage {
-  Worker_and_Children
-  Family
-  Worker_Only
-}
-
-enum HealthPlan {
-  Concordia_Plan
-  None
-  Other
-}
-
-enum HousingAllowanceType {
-  Salary
-  Stipend
-  Provided
-}
-
-enum PlacementRequestStatus {
-  Pending
-  Approved
-  Denied
-  Cancelled
-  Fulfilled
-}
-
-enum CallStatus {
-  Expressed
-  Declined
-  Extended
-  Accepted
+model DistrictPlacementRequest {
+  id                 Int              @id @default(autoincrement())
+  district           District         @relation(fields: [districtId], references: [id])
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  status             String
+  districtId         Int
+  placementRequestId Int              @unique
 }

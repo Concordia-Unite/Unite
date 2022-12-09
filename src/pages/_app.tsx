@@ -4,29 +4,28 @@ import { SessionProvider } from "next-auth/react";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
-import { RouterTransition } from "@components/ui/RouteTransition";
-import "../utils/superjson";
+import { theme } from "@src/types/theme";
 
-import { trpc } from "../utils/trpc";
+import { trpc } from "../services/trpc";
+import { RouterTransition } from "../components/ui/RouterTransition";
+import "@services/superjson";
 
-import "../styles/globals.css";
-
-const MyApp: AppType<{ session: Session | null }> = ({
+const Unite: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <MantineProvider withCSSVariables withNormalizeCSS>
-      <ModalsProvider>
+    <SessionProvider session={session}>
+      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
         <NotificationsProvider position="top-center">
-          <SessionProvider session={session}>
+          <ModalsProvider>
             <RouterTransition />
             <Component {...pageProps} />
-          </SessionProvider>
+          </ModalsProvider>
         </NotificationsProvider>
-      </ModalsProvider>
-    </MantineProvider>
+      </MantineProvider>
+    </SessionProvider>
   );
 };
 
-export default trpc.withTRPC(MyApp);
+export default trpc.withTRPC(Unite);

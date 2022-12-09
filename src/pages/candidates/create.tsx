@@ -1,143 +1,122 @@
-import Head from "next/head";
-import { HomeLayout } from "@layouts/HomeLayout";
-import { useStepper } from "../../hooks/useStepper";
-import { useRouter } from "next/router";
+import type { GetServerSideProps } from "next";
+import { Button, createStyles, Title } from "@mantine/core";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { appRouter } from "src/server/trpc/router/_app";
+import { createContextInner } from "src/server/trpc/context";
+import { getServerAuthSession } from "@server/get-server-auth-session";
+import superjson from "superjson";
+import { CandidateCreationLayout } from "@layouts/CandidateCreationLayout";
+import { trpc } from "@services/trpc";
 import {
-  CandidateCreationFormProvider,
-  EmailInput,
-  NameInput,
-  RosterStatusInput,
-  useCandidateCreationForm,
-} from "@features/candidate/creation";
-import { useSession } from "next-auth/react";
-import { Button, Container, Group, Stepper, Title } from "@mantine/core";
-import { AddressInput } from "@components/form/AddressInput";
-import { trpc } from "../../utils/trpc";
-import { notify } from "@lib/notification";
-import { useId } from "@mantine/hooks";
+  PersonalInfoInput,
+  useSessionPreFilledForm,
+} from "@features/candidate-creation";
+import { DistrictSelect } from "@form/DistrictSelect";
+import { UniversitySelect } from "@form/UniversitySelect";
+import { useNotify } from "@hooks/useNotify";
+import { useDistricts } from "@hooks/useDistricts";
+import { useUniversities } from "@hooks/useUniversities";
+import { useRouter } from "next/router";
 
-export default function CandidateCreation() {
-  const { data: session } = useSession({ required: true });
-  const { activeStep, setActiveStep, prevStep, nextStep } = useStepper(2);
-  const { data: districts } = trpc.district.getAll.useQuery();
-  const { data: universities } = trpc.university.getAll.useQuery();
-  const { mutateAsync: createCandidate } = trpc.candidate.create.useMutation();
-  const id = useId();
-  const router = useRouter();
-  const form = useCandidateCreationForm({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      description: "",
-      districtId: "",
-      universityId: "",
-      email: session?.user?.email ?? "",
-      isRostered: false,
-      address: {
-        houseNumber: "",
-        street: "",
-        city: "",
-        state: "NE",
-        country: "",
-        zipCode: "",
-      },
+const useStyles = createStyles((theme) => ({
+  layout: {
+    display: "flex",
+    flexDirection: "column",
+    marginLeft: "auto",
+    marginRight: "auto",
+
+    maxWidth: "80vw",
+
+    [theme.fn.largerThan("lg")]: {
+      maxWidth: "60vw",
     },
+  },
+
+  submitBtn: {
+    width: "100%",
+  },
+}));
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({
+      session: await getServerAuthSession(context),
+    }),
+    transformer: superjson,
   });
+
+  Promise.all([
+    ssg.district.getAll.prefetch(),
+    ssg.university.getAll.prefetch(),
+  ]);
+
+  if (await ssg.candidate.getCurrent.fetch()) {
+    return {
+      redirect: {
+        destination: "/candidates/me",
+      },
+      props: {},
+    };
+  } else {
+    return {
+      props: ssg.dehydrate(),
+    };
+  }
+};
+
+export default function CandidateCreate() {
+  const { classes } = useStyles();
+  const router = useRouter();
+  const { mutateAsync: create } = trpc.candidate.createNew.useMutation();
+  const { districts } = useDistricts();
+  const { universities } = useUniversities();
+
+  const notify = useNotify({
+    loading: "Candidate is being added...",
+    success: "Canddiate was successfully added!",
+    failure: "Something went Wrong...",
+  });
+
+  const form = useSessionPreFilledForm();
+
   return (
-    <>
-      <Head>
-        <title>Unite - Candidate Creation</title>
-      </Head>
-      <HomeLayout>
-        <CandidateCreationFormProvider form={form}>
-          <form
-            onSubmit={form.onSubmit((values) =>
-              notify(
-                id,
-                "Candidate Creation",
-                {
-                  onLoading: "Your Candidate is Being Created",
-                  onFailure: "Something went wrong",
-                  onSuccess: "Your Candidate was successfully created",
-                },
-                createCandidate({ ...values })
-              ).then(() => router.push("/candidates/dashboard"))
-            )}
+    <CandidateCreationLayout title="Candidate Creation">
+      <main className={classes.layout}>
+        <Title order={1}>Create Your Candidate Profile</Title>
+        <form
+          onSubmit={form.onSubmit((values) =>
+            notify(create({ ...values })).then(() =>
+              router.push("/candidates/me")
+            )
+          )}
+        >
+          <PersonalInfoInput form={form} />
+          {form.values.wasRostered ? (
+            <DistrictSelect
+              required
+              data={districts ?? []}
+              value={form.values.districtId.toString()}
+              onChange={(v) => form.setFieldValue("districtId", Number(v))}
+            />
+          ) : (
+            <UniversitySelect
+              required
+              data={universities ?? []}
+              value={form.values.universityId.toString()}
+              onChange={(v) => form.setFieldValue("universityId", Number(v))}
+            />
+          )}
+          <Button
+            className={classes.submitBtn}
+            mt={"md"}
+            type="submit"
+            variant={"gradient"}
           >
-            <Container fluid>
-              <Title align={"center"}>Candidate Creation</Title>
-              <Stepper
-                active={activeStep}
-                onStepClick={setActiveStep}
-                breakpoint={"md"}
-              >
-                <Stepper.Step
-                  label={"Who are You?"}
-                  description={"A Little bit about yourself"}
-                >
-                  <EmailInput
-                    form={form}
-                    description={
-                      "This is shared with Calling Entities for them to reach out to you."
-                    }
-                  />
-                  <NameInput
-                    form={form}
-                    description={
-                      "This your full name. This is shared with Calling Entities during the Call Process."
-                    }
-                    label={"Your Full Name"}
-                    required
-                  />
-                  <RosterStatusInput
-                    universities={universities ?? []}
-                    districts={districts ?? []}
-                  />
-                </Stepper.Step>
-                <Stepper.Step
-                  label={"Where are You?"}
-                  description={"Your Address"}
-                >
-                  <AddressInput
-                    form={form}
-                    label={"Your Home Address"}
-                    description={
-                      "This is where you currently live. This is helpful for Calling Entities."
-                    }
-                    required
-                  />
-                  <Group position="center" mt={"md"}>
-                    <Button
-                      variant="outline"
-                      onClick={prevStep}
-                      disabled={activeStep === 0}
-                    >
-                      Previous
-                    </Button>
-                    <Button variant="filled" type="submit">
-                      Submit
-                    </Button>
-                  </Group>
-                </Stepper.Step>
-              </Stepper>
-              {activeStep !== 1 && (
-                <Group position="center" mt={"md"}>
-                  <Button
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={activeStep === 0}
-                  >
-                    Previous
-                  </Button>
-                  <Button variant="filled" onClick={nextStep}>
-                    Next
-                  </Button>
-                </Group>
-              )}
-            </Container>
-          </form>
-        </CandidateCreationFormProvider>
-      </HomeLayout>
-    </>
+            Submit
+          </Button>
+        </form>
+      </main>
+    </CandidateCreationLayout>
   );
 }

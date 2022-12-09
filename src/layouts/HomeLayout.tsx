@@ -1,17 +1,22 @@
-import type {ReactNode} from "react";
-import {AppShell} from "@mantine/core";
-import {UniteHeader} from "@components/ui/UniteHeader";
+import type { ReactNode } from "react";
+import Head from "next/head";
+import { AppShell } from "@mantine/core";
+import { Header } from "@ui/Header";
 
-interface HomeLayoutProps {
-  children: ReactNode
-
+interface Props {
+  title: string;
+  children: ReactNode;
 }
-export function HomeLayout({children}: HomeLayoutProps) {
+
+export function HomeLayout(props: Props) {
   return (
     <>
-      <AppShell padding={0} header={<UniteHeader />}>
-        {children}
+      <Head>
+        <title>{props.title}</title>
+      </Head>
+      <AppShell padding={0} header={<Header />}>
+        {props.children}
       </AppShell>
     </>
-  )
+  );
 }

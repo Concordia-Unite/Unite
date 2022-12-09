@@ -1,6 +1,5 @@
 import { createStyles, Tooltip, UnstyledButton } from "@mantine/core";
-import { TablerIcon } from "@tabler/icons";
-import Link from "next/link";
+import type { TablerIcon } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -16,8 +15,9 @@ const useStyles = createStyles((theme) => ({
     "&:hover": {
       opacity: 1,
       backgroundColor: theme.fn.lighten(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         theme.fn.variant({ variant: "filled", color: theme.primaryColor })
-          .background ?? theme.primaryColor,
+          .background!,
         0.1
       ),
     },
@@ -27,37 +27,32 @@ const useStyles = createStyles((theme) => ({
     opacity: 1,
     "&, &:hover": {
       backgroundColor: theme.fn.lighten(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         theme.fn.variant({ variant: "filled", color: theme.primaryColor })
-          .background ?? theme.primaryColor,
+          .background!,
         0.15
       ),
     },
   },
 }));
 
-interface NavbarLinkProps {
+interface Props {
   icon: TablerIcon;
   label: string;
-  href: string;
   active?: boolean;
+  onClick?(): void;
 }
 
-export const NavbarLink = ({
-  icon: Icon,
-  label,
-  href,
-  active,
-}: NavbarLinkProps) => {
+export function NavbarLink({ icon: Icon, label, active, onClick }: Props) {
   const { classes, cx } = useStyles();
   return (
     <Tooltip label={label} position="right" transitionDuration={0}>
       <UnstyledButton
-        component={Link}
-        href={href}
+        onClick={onClick}
         className={cx(classes.link, { [classes.active]: active })}
       >
         <Icon stroke={1.5} />
       </UnstyledButton>
     </Tooltip>
   );
-};
+}
