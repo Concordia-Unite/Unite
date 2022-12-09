@@ -1,21 +1,19 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type { GetServerSideProps } from "next";
 import { Button, createStyles, Title } from "@mantine/core";
 import { CandidateCreationLayout } from "@layouts/CandidateCreationLayout";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "src/server/trpc/router/_app";
-import { createContextInner } from "src/server/trpc/context";
-import { getServerAuthSession } from "@server/get-server-auth-session";
 import {
+  creationFormValidator,
   NameInput,
   useCreationForm,
   VariantSelect,
 } from "@features/calling-entity-creation";
 import { Variant } from "@enums/variant";
 import { useDistricts } from "@hooks/useDistricts";
-import { trpc } from "@services/trpc";
+import { createTRPCSSGProxy, trpc } from "@services/trpc";
 import { useNotify } from "@hooks/useNotify";
 import { DistrictSelect } from "@form/DistrictSelect";
 import { useRouter } from "next/router";
+import { zodResolver } from "@mantine/form";
 
 const useStyles = createStyles((theme) => ({
   layout: {
@@ -36,12 +34,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: await createContextInner({
-      session: await getServerAuthSession(context),
-    }),
-  });
+  const ssg = await createTRPCSSGProxy(context);
 
   if (await ssg.callingEntity.getCurrent.fetch()) {
     return {
@@ -73,6 +66,7 @@ export default function Create() {
       districtId: -1,
       variant: Variant.ElementarySchool,
     },
+    validate: zodResolver(creationFormValidator),
   });
 
   return (

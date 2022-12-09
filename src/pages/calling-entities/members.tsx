@@ -1,18 +1,18 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "src/server/trpc/router/_app";
-import { createContextInner } from "src/server/trpc/context";
-import { getServerAuthSession } from "@server/get-server-auth-session";
-import { trpc } from "@services/trpc";
+import { createTRPCSSGProxy, trpc } from "@services/trpc";
 import { useNotify } from "@hooks/useNotify";
 import { useSession } from "next-auth/react";
 import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
 import {
+  creationFormValidator,
   MembershipTable,
   NewMemberInput,
   useCreationForm,
 } from "@features/calling-entities-membership";
+import { Role } from "@enums/role";
+import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
+import { zodResolver } from "@mantine/form";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -38,30 +38,9 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: await createContextInner({
-      session: await getServerAuthSession(context),
-    }),
-  });
+  const ssg = await createTRPCSSGProxy(context);
 
-  try {
-    if (!(await ssg.callingEntity.getCurrent.fetch())) {
-      return {
-        redirect: {
-          destination: "/calling-entities/create",
-        },
-        props: {},
-      };
-    }
-  } catch {
-    return {
-      redirect: {
-        destination: "/login",
-      },
-      props: {},
-    };
-  }
+  await assertHasCallingEntity({ ssg });
 
   return {
     props: {
@@ -94,7 +73,14 @@ export default function Members() {
     success: "Member successfully deleted!",
     failure: "Something went wrong",
   });
-  const form = useCreationForm();
+  const form = useCreationForm({
+    initialValues: {
+      role: Role.Member,
+      name: "",
+      email: "",
+    },
+    validate: zodResolver(creationFormValidator),
+  });
 
   if (!entity || !session)
     return (

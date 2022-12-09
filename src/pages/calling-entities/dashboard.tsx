@@ -1,12 +1,9 @@
 import type { GetServerSideProps } from "next";
 import { createStyles, Loader, Title } from "@mantine/core";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "src/server/trpc/router/_app";
-import { createContextInner } from "src/server/trpc/context";
-import { getServerAuthSession } from "@server/get-server-auth-session";
 import { useSession } from "next-auth/react";
-import { trpc } from "@services/trpc";
+import { createTRPCSSGProxy, trpc } from "@services/trpc";
 import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -24,30 +21,9 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: await createContextInner({
-      session: await getServerAuthSession(context),
-    }),
-  });
+  const ssg = await createTRPCSSGProxy(context);
 
-  try {
-    if (!(await ssg.callingEntity.getCurrent.fetch())) {
-      return {
-        redirect: {
-          destination: "/calling-entities/create",
-        },
-        props: {},
-      };
-    }
-  } catch {
-    return {
-      redirect: {
-        destination: "/login",
-      },
-      props: {},
-    };
-  }
+  await assertHasCallingEntity({ ssg });
 
   await ssg.auth.getSession.prefetch();
 

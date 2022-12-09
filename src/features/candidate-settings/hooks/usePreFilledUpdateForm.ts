@@ -1,5 +1,7 @@
+import { zodResolver } from "@mantine/form";
 import type { RouterOutputs } from "@services/trpc";
 import { useEffect } from "react";
+import { updateFormValidator } from "../lib/update-form";
 import { useUpdateForm } from "./useUpdateForm";
 
 interface UsePreFilledUpdateFormArgs {
@@ -15,6 +17,7 @@ export function usePreFilledUpdateForm(args: UsePreFilledUpdateFormArgs) {
       universityId: -1,
       profilePictureUrl: "",
     },
+    validate: zodResolver(updateFormValidator),
   });
 
   useEffect(() => {

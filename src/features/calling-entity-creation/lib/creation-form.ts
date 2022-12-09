@@ -1,7 +1,10 @@
-import type { Variant } from "@enums/variant";
+import { z } from "zod";
+import { Variant } from "@enums/variant";
 
-export interface CreationForm {
-  name: string;
-  districtId: number;
-  variant: Variant;
-}
+export const creationFormValidator = z.object({
+  name: z.string(),
+  districtId: z.number(),
+  variant: z.nativeEnum(Variant),
+});
+
+export type CreationForm = z.infer<typeof creationFormValidator>;

@@ -1,7 +1,11 @@
-export interface UpdateForm {
-  wasRostered: boolean;
-  universityId: number;
-  districtId: number;
-  name: string;
-  profilePictureUrl: string;
-}
+import { z } from "zod";
+
+export const updateFormValidator = z.object({
+  wasRostered: z.boolean(),
+  universityId: z.number(),
+  districtId: z.number(),
+  name: z.string(),
+  profilePictureUrl: z.string(),
+});
+
+export type UpdateForm = z.infer<typeof updateFormValidator>;
