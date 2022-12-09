@@ -9,11 +9,13 @@ import {
 } from "@features/calling-entity-creation";
 import { Variant } from "@enums/variant";
 import { useDistricts } from "@hooks/useDistricts";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { useNotify } from "@hooks/useNotify";
 import { DistrictSelect } from "@form/DistrictSelect";
 import { useRouter } from "next/router";
 import { zodResolver } from "@mantine/form";
+import { guarded } from "@server/guarded";
+import { assertCallingEntityAlreadyExists } from "@server/guards/calling-entity-already-exists";
 
 const useStyles = createStyles((theme) => ({
   layout: {
@@ -33,22 +35,12 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  if (await ssg.callingEntity.getCurrent.fetch()) {
-    return {
-      redirect: {
-        destination: "/calling-entities/dashboard",
-      },
-      props: {},
-    };
-  }
-
-  return {
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertCallingEntityAlreadyExists],
+  async () => ({
     props: {},
-  };
-};
+  })
+);
 
 export default function Create() {
   const { classes } = useStyles();

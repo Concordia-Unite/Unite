@@ -36,7 +36,7 @@ export function UniversityMultiSelect(props: Props) {
           label: uni.name,
           value: uni.id.toString(),
         }))}
-        {...props.form.getInputProps("universities")}
+        value={props.form.values.universities.map((v) => v.toString())}
         onChange={(v) =>
           props.form.setFieldValue("universities", v.map(Number))
         }

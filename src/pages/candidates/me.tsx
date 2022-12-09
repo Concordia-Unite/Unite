@@ -1,8 +1,10 @@
 import type { GetServerSideProps } from "next";
 import { createStyles, Loader, Title } from "@mantine/core";
 import { CandidateDashboardLayout } from "@layouts/CandidateDashboardLayout";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
+import { guarded } from "@server/guarded";
+import { assertCandidateDoesExist } from "@server/guards/candidate-does-exist";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -19,17 +21,14 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  await ssg.candidate.getCurrent.prefetch();
-
-  return {
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertCandidateDoesExist],
+  async ({ ssg }) => ({
     props: {
       trpcState: ssg.dehydrate(),
     },
-  };
-};
+  })
+);
 
 export default function Dashboard() {
   useSession({ required: true });

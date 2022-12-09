@@ -1,10 +1,5 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Title } from "@mantine/core";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
-import { appRouter } from "src/server/trpc/router/_app";
-import { createContextInner } from "src/server/trpc/context";
-import { getServerAuthSession } from "@server/get-server-auth-session";
-import superjson from "superjson";
 import { CandidateCreationLayout } from "@layouts/CandidateCreationLayout";
 import { trpc } from "@services/trpc";
 import {
@@ -17,6 +12,9 @@ import { useNotify } from "@hooks/useNotify";
 import { useDistricts } from "@hooks/useDistricts";
 import { useUniversities } from "@hooks/useUniversities";
 import { useRouter } from "next/router";
+import { getTRPCServerProxy } from "@server/get-trpc-ssg";
+import { guarded } from "@server/guarded";
+import { assertCandidateAlreadyExists } from "@server/guards/candidate-already-exists";
 
 const useStyles = createStyles((theme) => ({
   layout: {
@@ -37,33 +35,19 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = createProxySSGHelpers({
-    router: appRouter,
-    ctx: await createContextInner({
-      session: await getServerAuthSession(context),
-    }),
-    transformer: superjson,
-  });
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertCandidateAlreadyExists],
+  async ({ ssg }) => {
+    Promise.all([
+      ssg.district.getAll.prefetch(),
+      ssg.university.getAll.prefetch(),
+    ]);
 
-  Promise.all([
-    ssg.district.getAll.prefetch(),
-    ssg.university.getAll.prefetch(),
-  ]);
-
-  if (await ssg.candidate.getCurrent.fetch()) {
-    return {
-      redirect: {
-        destination: "/candidates/me",
-      },
-      props: {},
-    };
-  } else {
     return {
       props: ssg.dehydrate(),
     };
   }
-};
+);
 
 export default function CandidateCreate() {
   const { classes } = useStyles();

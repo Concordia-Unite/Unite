@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
 import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
 import {
   AdvancedInput,
@@ -16,6 +16,8 @@ import { SocialSecurityContribution } from "@enums/social-security-contribution"
 import { useNotify } from "@hooks/useNotify";
 import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 import { zodResolver } from "@mantine/form";
+import { getTRPCServerProxy } from "@server/get-trpc-ssg";
+import { guarded } from "@server/guarded";
 
 const useStyles = createStyles((theme) => ({
   layout: {
@@ -76,17 +78,14 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  await assertHasCallingEntity({ ssg });
-
-  return {
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertHasCallingEntity],
+  async ({ ssg }) => ({
     props: {
       trpcState: ssg.dehydrate(),
     },
-  };
-};
+  })
+);
 
 export default function CallingEntitiesPlacementRequestsCreate() {
   const { data: session } = useSession({ required: true });

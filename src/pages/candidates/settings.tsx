@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title, Text } from "@mantine/core";
 import { useSession } from "next-auth/react";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { CandidateDashboardLayout } from "@layouts/CandidateDashboardLayout";
 import {
   PersonalInfoInput,
@@ -13,6 +13,8 @@ import { UniversitySelect } from "@form/UniversitySelect";
 import { useDistricts } from "@hooks/useDistricts";
 import { useUniversities } from "@hooks/useUniversities";
 import { openConfirmModal } from "@mantine/modals";
+import { guarded } from "@server/guarded";
+import { assertCandidateDoesExist } from "@server/guards/candidate-does-exist";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -38,17 +40,14 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  await ssg.candidate.getCurrent.prefetch();
-
-  return {
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertCandidateDoesExist],
+  async ({ ssg }) => ({
     props: {
       trpcState: ssg.dehydrate(),
     },
-  };
-};
+  })
+);
 
 const confirmModal = (onConfirm: () => void) =>
   openConfirmModal({

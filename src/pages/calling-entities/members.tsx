@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { useNotify } from "@hooks/useNotify";
 import { useSession } from "next-auth/react";
 import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
@@ -13,6 +13,7 @@ import {
 import { Role } from "@enums/role";
 import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 import { zodResolver } from "@mantine/form";
+import { guarded } from "@server/guarded";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -37,17 +38,16 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  await assertHasCallingEntity({ ssg });
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-    },
-  };
-};
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertHasCallingEntity],
+  async ({ ssg }) => {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+      },
+    };
+  }
+);
 
 export default function Members() {
   const { data: session } = useSession({ required: true });

@@ -127,7 +127,7 @@ export const callingEntityRouter = router({
         socialSecurityContribution: z.nativeEnum(SocialSecurityContribution),
         housingAllowance: z.object({
           type: z.nativeEnum(HousingAllowanceVariant),
-          stipend: z.number().or(z.undefined()),
+          stipend: z.number().nullish(),
         }),
         universityIds: z.number().array(),
         healthCoverage: z.nativeEnum(HealthCoverage).nullish(),

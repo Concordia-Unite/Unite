@@ -1,9 +1,10 @@
 import type { GetServerSideProps } from "next";
 import { createStyles, Loader, Title } from "@mantine/core";
 import { useSession } from "next-auth/react";
-import { createTRPCSSGProxy, trpc } from "@services/trpc";
+import { trpc } from "@services/trpc";
 import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
 import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
+import { guarded } from "@server/guarded";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -20,19 +21,14 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const ssg = await createTRPCSSGProxy(context);
-
-  await assertHasCallingEntity({ ssg });
-
-  await ssg.auth.getSession.prefetch();
-
-  return {
+export const getServerSideProps: GetServerSideProps = guarded(
+  [assertHasCallingEntity],
+  async ({ ssg }) => ({
     props: {
       trpcState: ssg.dehydrate(),
     },
-  };
-};
+  })
+);
 
 export default function Dashboard() {
   const { data: session } = useSession({ required: true });

@@ -1,25 +1,25 @@
-import type { TRPCSSGProxy } from "@services/trpc";
+import { type Guard } from "@server/guarded";
 
-interface HasCallingEntityArgs {
-  ssg: TRPCSSGProxy;
-}
-
-export async function assertHasCallingEntity(args: HasCallingEntityArgs) {
+export const assertHasCallingEntity: Guard = async ({ ssg }) => {
   try {
-    if (!(await args.ssg.callingEntity.getCurrent.fetch())) {
+    if (!(await ssg.callingEntity.getCurrent.fetch())) {
       return {
+        didPass: false,
         redirect: {
           destination: "/calling-entities/create",
         },
-        props: {},
       };
     }
   } catch {
     return {
+      didPass: false,
       redirect: {
         destination: "/login",
       },
-      props: {},
     };
   }
-}
+
+  return {
+    didPass: true,
+  };
+};

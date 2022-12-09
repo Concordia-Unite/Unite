@@ -1,4 +1,4 @@
-import type { PrismaClient, User } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 
 export class CandidateRepo {
   public constructor(private client: PrismaClient) {}

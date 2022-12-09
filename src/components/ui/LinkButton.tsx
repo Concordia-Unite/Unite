@@ -13,8 +13,8 @@ interface Props extends ButtonProps {
 export function LinkButton({ href, ...rest }: Props) {
   return (
     <>
-      <Link passHref href={href}>
-        <Button component="a" {...rest} />
+      <Link href={href}>
+        <Button {...rest} />
       </Link>
     </>
   );

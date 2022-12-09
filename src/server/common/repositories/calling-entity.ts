@@ -130,7 +130,10 @@ export class CallingEntityRepo {
     isFullTime: boolean,
     salary: number,
     socialSecurityContribution: SocialSecurityContribution,
-    housingAllowance: { type: HousingAllowanceVariant; stipend?: number },
+    housingAllowance: {
+      type: HousingAllowanceVariant;
+      stipend: number | null | undefined;
+    },
     universityIds: number[],
     healthCoverage?: HealthCoverage,
     healthPlan?: HealthPlan,
