@@ -14,10 +14,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 
-export default function <%= Name %>(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function <%= h.changeCase.pascal(Name.replaceAll("/", "")) %>(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const { classes } = useStyles();
 
     return <>
     Hello World
-    <>
+    </>
 };
