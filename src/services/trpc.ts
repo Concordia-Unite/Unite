@@ -58,9 +58,7 @@ export const client = createTRPCProxyClient<AppRouter>({
   ],
 });
 
-export const createTRPCSSGProxy = async (
-  context: GetServerSidePropsContext
-) => {
+export async function createTRPCSSGProxy(context: GetServerSidePropsContext) {
   return createProxySSGHelpers({
     router: appRouter,
     ctx: await createContextInner({
@@ -68,6 +66,6 @@ export const createTRPCSSGProxy = async (
     }),
     transformer: superjson,
   });
-};
+}
 
 export type TRPCSSGProxy = Awaited<ReturnType<typeof createTRPCSSGProxy>>;

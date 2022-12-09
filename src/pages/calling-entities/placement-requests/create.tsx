@@ -115,6 +115,7 @@ export default function CallingEntitiesPlacementRequestsCreate() {
       socialSecurityContribution: SocialSecurityContribution.EmployerPaysAll,
       universities: [],
       salary: 0,
+      startDate: null,
     },
     validate: zodResolver(creationFormValidator),
   });

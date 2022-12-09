@@ -66,7 +66,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function CandidateCreate() {
-  // _: InferGetServerSidePropsType<typeof getServerSideProps>
   const { classes } = useStyles();
   const router = useRouter();
   const { mutateAsync: create } = trpc.candidate.createNew.useMutation();

@@ -130,10 +130,10 @@ export const callingEntityRouter = router({
           stipend: z.number().or(z.undefined()),
         }),
         universityIds: z.number().array(),
-        healthCoverage: z.nativeEnum(HealthCoverage).or(z.undefined()),
-        healthPlan: z.nativeEnum(HealthPlan).or(z.undefined()),
-        monthsOfService: z.number().or(z.undefined()),
-        startDate: z.date().or(z.undefined()),
+        healthCoverage: z.nativeEnum(HealthCoverage).nullish(),
+        healthPlan: z.nativeEnum(HealthPlan).nullish(),
+        monthsOfService: z.number().nullish(),
+        startDate: z.date().nullish(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -155,10 +155,10 @@ export const callingEntityRouter = router({
         input.socialSecurityContribution,
         input.housingAllowance,
         input.universityIds,
-        input.healthCoverage,
-        input.healthPlan,
-        input.monthsOfService,
-        input.startDate
+        input.healthCoverage ?? undefined,
+        input.healthPlan ?? undefined,
+        input.monthsOfService ?? undefined,
+        input.startDate ?? undefined
       );
     }),
 });
