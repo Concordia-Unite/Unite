@@ -10,7 +10,7 @@ const useStyles = createStyles((theme) => ({
     //
 }));
 
-export const getServerSideProps: GetServerSideProps = guarded([], () => ({
+export const getServerSideProps: GetServerSideProps = guarded([], async () => ({
     props: {}
 }))
 
