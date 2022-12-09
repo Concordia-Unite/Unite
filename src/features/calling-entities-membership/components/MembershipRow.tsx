@@ -59,6 +59,7 @@ const updateConfirmModel = (
         Update {name} with role {role}?
       </Text>
     ),
+    labels: { confirm: "Update", cancel: "Cancel" },
     onConfirm: () => onConfirm(userId, role as Role),
   });
 };
@@ -71,6 +72,7 @@ const deleteConfirmModal = (
   openConfirmModal({
     title: `Delete ${name}?`,
     children: <Text>Delete {name}? There is no going back.</Text>,
+    labels: { confirm: "Delete", cancel: "Cancel" },
     onConfirm: () => onConfirm(userId),
   });
 };

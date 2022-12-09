@@ -1,5 +1,5 @@
 import { Role } from "@enums/role";
-import { createStyles, NativeSelect, TextInput } from "@mantine/core";
+import { createStyles, NativeSelect, Select, TextInput } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
 import { IconAt } from "@tabler/icons";
 import type { CreationForm } from "../lib/creation-form";
@@ -37,7 +37,7 @@ export function NewMemberInput(props: Props) {
         required
         {...props.form.getInputProps("email")}
       />
-      <NativeSelect
+      <Select
         className={classes.selectbox}
         data={Object.values(Role)}
         required
