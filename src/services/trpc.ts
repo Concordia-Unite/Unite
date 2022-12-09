@@ -1,9 +1,13 @@
+import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import { type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "@server/get-server-auth-session";
 import { createTRPCProxyClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { createContextInner } from "src/server/trpc/context";
 import superjson from "superjson";
 
-import { type AppRouter } from "../server/trpc/router/_app";
+import { appRouter, type AppRouter } from "../server/trpc/router/_app";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
@@ -53,3 +57,17 @@ export const client = createTRPCProxyClient<AppRouter>({
     }),
   ],
 });
+
+export const createTRPCSSGProxy = async (
+  context: GetServerSidePropsContext
+) => {
+  return createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContextInner({
+      session: await getServerAuthSession(context),
+    }),
+    transformer: superjson,
+  });
+};
+
+export type TRPCSSGProxy = Awaited<ReturnType<typeof createTRPCSSGProxy>>;
