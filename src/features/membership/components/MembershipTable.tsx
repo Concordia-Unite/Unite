@@ -1,6 +1,11 @@
 import type { Role } from "@enums/role";
 import { createStyles, Table } from "@mantine/core";
-import type { CallingEntityMembership, User } from "@prisma/client";
+import type {
+  CallingEntityMembership,
+  DistrictMembership,
+  UniversityMembership,
+  User,
+} from "@prisma/client";
 import { MembershipRow } from "./MembershipRow";
 
 const useStyles = createStyles((theme) => ({
@@ -12,7 +17,11 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface Props {
-  members: (CallingEntityMembership & {
+  members: ((
+    | CallingEntityMembership
+    | DistrictMembership
+    | UniversityMembership
+  ) & {
     user: User;
   })[];
   onMemberDelete: (userId: string) => void;
@@ -35,7 +44,6 @@ export function MembershipTable(props: Props) {
           {props.members.map((member) => (
             <MembershipRow
               key={member.id}
-              callingEntityId={member.callingEntityId}
               member={member}
               onMemberDelete={props.onMemberDelete}
               onRoleUpdate={props.onMemberRoleUpdate}

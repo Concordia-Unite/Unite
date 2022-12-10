@@ -8,7 +8,12 @@ import {
   Title,
 } from "@mantine/core";
 import { openConfirmModal } from "@mantine/modals";
-import type { CallingEntityMembership, User } from "@prisma/client";
+import type {
+  CallingEntityMembership,
+  DistrictMembership,
+  UniversityMembership,
+  User,
+} from "@prisma/client";
 
 const useStyles = createStyles((theme) => ({
   nameCard: {
@@ -38,10 +43,13 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface Props {
-  member: CallingEntityMembership & {
+  member: (
+    | CallingEntityMembership
+    | DistrictMembership
+    | UniversityMembership
+  ) & {
     user: User;
   };
-  callingEntityId: number;
   onRoleUpdate: (userId: string, role: Role) => void;
   onMemberDelete: (userId: string) => void;
 }

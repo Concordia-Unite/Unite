@@ -1,9 +1,8 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
 import { trpc } from "@services/trpc";
-import { useNotify } from "@hooks/useNotify";
 import { useSession } from "next-auth/react";
-import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { DistrictDashboardLayout } from "@layouts/DistrictDashboardLayout";
 import {
   creationFormValidator,
   MembershipTable,
@@ -14,9 +13,9 @@ import {
   useNotifyUpdateMember,
 } from "@features/membership";
 import { Role } from "@enums/role";
-import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 import { zodResolver } from "@mantine/form";
 import { guarded } from "@server/guarded";
+import { assertMemberOfDistrict } from "@server/guards/member-of-district";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -42,7 +41,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const getServerSideProps: GetServerSideProps = guarded(
-  [assertHasCallingEntity],
+  [assertMemberOfDistrict],
   async ({ ssg }) => {
     return {
       props: {
@@ -55,11 +54,10 @@ export const getServerSideProps: GetServerSideProps = guarded(
 export default function Members() {
   const { data: session } = useSession({ required: true });
   const { classes } = useStyles();
-  const { data: entity } = trpc.callingEntity.getCurrent.useQuery();
-  const { mutateAsync: add } = trpc.callingEntity.addMember.useMutation();
-  const { mutateAsync: remove } = trpc.callingEntity.deleteMember.useMutation();
-  const { mutateAsync: update } =
-    trpc.callingEntity.updateMemberRole.useMutation();
+  const { data: district } = trpc.district.getCurrent.useQuery();
+  const { mutateAsync: add } = trpc.district.addMember.useMutation();
+  const { mutateAsync: remove } = trpc.district.deleteMember.useMutation();
+  const { mutateAsync: update } = trpc.district.updateMemberRole.useMutation();
   const newMemberNotify = useNotifyNewMember();
   const deleteMemberNotify = useNotifyDeleteMember();
   const updateMemberNotify = useNotifyUpdateMember();
@@ -73,25 +71,25 @@ export default function Members() {
     validate: zodResolver(creationFormValidator),
   });
 
-  if (!entity || !session)
+  if (!district || !session)
     return (
-      <CallingEntityDashboardLayout title="Calling Entity Members">
+      <DistrictDashboardLayout title="Calling Entity Members">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CallingEntityDashboardLayout>
+      </DistrictDashboardLayout>
     );
 
   return (
-    <CallingEntityDashboardLayout
-      title={`${entity.name} Members List`}
+    <DistrictDashboardLayout
+      title={`${district.name} Members List`}
       image={session.user?.image ?? ""}
     >
-      <Title order={1}>Members of {entity.name}</Title>
+      <Title order={1}>Members of the {district.name} District</Title>
       <form
         className={classes.addForm}
         onSubmit={form.onSubmit((values) =>
-          newMemberNotify(add({ ...values, callingEntityId: entity.id }))
+          newMemberNotify(add({ ...values, districtId: district.id }))
         )}
       >
         <NewMemberInput form={form} />
@@ -101,13 +99,13 @@ export default function Members() {
       </form>
       <main>
         <MembershipTable
-          members={entity.members}
+          members={district.members}
           onMemberDelete={(userId) => deleteMemberNotify(remove({ userId }))}
           onMemberRoleUpdate={(userId, role) =>
             updateMemberNotify(update({ userId, role }))
           }
         />
       </main>
-    </CallingEntityDashboardLayout>
+    </DistrictDashboardLayout>
   );
 }
