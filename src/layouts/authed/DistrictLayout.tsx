@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import Head from "next/head";
 import { AppShell, Avatar, createStyles, Navbar } from "@mantine/core";
+import { useRouter } from "next/router";
 import { NavbarLink } from "@ui/NavbarLink";
 import {
   IconHome2,
-  IconListSearch,
+  IconList,
   IconLogout,
   IconSettings,
   IconUsers,
 } from "@tabler/icons";
-import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 
 const useStyles = createStyles((theme) => ({
@@ -37,7 +37,7 @@ interface Props {
   children: ReactNode;
 }
 
-export function CallingEntityDashboardLayout(props: Props) {
+export function DistrictLayout(props: Props) {
   const { classes } = useStyles();
   const router = useRouter();
 
@@ -53,24 +53,22 @@ export function CallingEntityDashboardLayout(props: Props) {
               <NavbarLink
                 icon={IconHome2}
                 label="Dashboard"
-                onClick={() => router.push("/calling-entities/dashboard")}
+                onClick={() => router.push("/districts/dashboard")}
               />
               <NavbarLink
                 icon={IconUsers}
                 label="Members"
-                onClick={() => router.push("/calling-entities/members")}
+                onClick={() => router.push("/districts/members")}
               />
               <NavbarLink
-                icon={IconListSearch}
-                label="Create Placement Request"
-                onClick={() =>
-                  router.push("/calling-entities/placement-requests/create")
-                }
+                icon={IconList}
+                label="Placement Requests"
+                onClick={() => router.push("/districts/placement-requests")}
               />
               <NavbarLink
                 icon={IconSettings}
                 label="Settings"
-                onClick={() => router.push("/calling-entities/settings")}
+                onClick={() => router.push("/districts/settings")}
               />
             </Navbar.Section>
             <Navbar.Section>

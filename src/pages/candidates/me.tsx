@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { createStyles, Loader, Title } from "@mantine/core";
-import { CandidateDashboardLayout } from "@layouts/CandidateDashboardLayout";
+import { CandidateLayout } from "@layouts/authed/CandidateLayout";
 import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
 import { guarded } from "@server/guarded";
@@ -37,22 +37,19 @@ export default function Dashboard() {
 
   if (!candidate)
     return (
-      <CandidateDashboardLayout title="Dashboard">
+      <CandidateLayout title="Dashboard">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CandidateDashboardLayout>
+      </CandidateLayout>
     );
 
   return (
-    <CandidateDashboardLayout
-      image={candidate.user.image ?? ""}
-      title="Dashboard"
-    >
+    <CandidateLayout image={candidate.user.image ?? ""} title="Dashboard">
       <main className={classes.dashboard}>
         <Title order={1}>Dashboard</Title>
         <Title order={5}>Welcome {candidate.user.name}!</Title>
       </main>
-    </CandidateDashboardLayout>
+    </CandidateLayout>
   );
 }

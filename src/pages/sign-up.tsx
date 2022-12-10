@@ -1,5 +1,5 @@
 import { Avatar, createStyles, Paper, Text, Title } from "@mantine/core";
-import { HomeLayout } from "@layouts/HomeLayout";
+import { HomeLayout } from "@layouts/guest/HomeLayout";
 import { LinkButton } from "@ui/LinkButton";
 import { IconSchool } from "@tabler/icons";
 

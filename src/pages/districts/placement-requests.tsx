@@ -4,7 +4,7 @@ import { createStyles, Loader, Title, Text } from "@mantine/core";
 import { assertMemberOfDistrict } from "@server/guards/member-of-district";
 import { useSession } from "next-auth/react";
 import { trpc } from "@services/trpc";
-import { DistrictDashboardLayout } from "@layouts/DistrictDashboardLayout";
+import { DistrictLayout } from "@layouts/authed/DistrictLayout";
 import { RequestTable } from "@features/placement-approval";
 import { openConfirmModal } from "@mantine/modals";
 import { useNotify } from "@hooks/useNotify";
@@ -70,15 +70,15 @@ export default function DistrictsPlacementRequests() {
 
   if (!district || !session)
     return (
-      <DistrictDashboardLayout title="District Dashboard">
+      <DistrictLayout title="District Dashboard">
         <main className={classes.loader}>
           <Loader />
         </main>
-      </DistrictDashboardLayout>
+      </DistrictLayout>
     );
 
   return (
-    <DistrictDashboardLayout
+    <DistrictLayout
       title={`${district.name} District Dashboard`}
       image={session.user?.image ?? ""}
     >
@@ -103,6 +103,6 @@ export default function DistrictsPlacementRequests() {
           );
         }}
       />
-    </DistrictDashboardLayout>
+    </DistrictLayout>
   );
 }

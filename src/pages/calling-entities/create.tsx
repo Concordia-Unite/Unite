@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Title } from "@mantine/core";
-import { CandidateCreationLayout } from "@layouts/CandidateCreationLayout";
+import { CreationLayout } from "@layouts/guest/CreationLayout";
 import {
   creationFormValidator,
   NameInput,
@@ -62,7 +62,7 @@ export default function Create() {
   });
 
   return (
-    <CandidateCreationLayout title="Calling Entity Creation">
+    <CreationLayout title="Calling Entity Creation">
       <main className={classes.layout}>
         <Title order={1}>Calling Entity Creation</Title>
         <form
@@ -89,6 +89,6 @@ export default function Create() {
           </Button>
         </form>
       </main>
-    </CandidateCreationLayout>
+    </CreationLayout>
   );
 }

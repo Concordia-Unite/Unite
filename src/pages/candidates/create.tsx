@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Title } from "@mantine/core";
-import { CandidateCreationLayout } from "@layouts/CandidateCreationLayout";
+import { CreationLayout } from "@layouts/guest/CreationLayout";
 import { trpc } from "@services/trpc";
 import {
   PersonalInfoInput,
@@ -12,7 +12,6 @@ import { useNotify } from "@hooks/useNotify";
 import { useDistricts } from "@hooks/useDistricts";
 import { useUniversities } from "@hooks/useUniversities";
 import { useRouter } from "next/router";
-import { getTRPCServerProxy } from "@server/get-trpc-ssg";
 import { guarded } from "@server/guarded";
 import { assertCandidateAlreadyExists } from "@server/guards/candidate-already-exists";
 
@@ -65,7 +64,7 @@ export default function CandidateCreate() {
   const form = useSessionPreFilledForm();
 
   return (
-    <CandidateCreationLayout title="Candidate Creation">
+    <CreationLayout title="Candidate Creation">
       <main className={classes.layout}>
         <Title order={1}>Create Your Candidate Profile</Title>
         <form
@@ -101,6 +100,6 @@ export default function CandidateCreate() {
           </Button>
         </form>
       </main>
-    </CandidateCreationLayout>
+    </CreationLayout>
   );
 }

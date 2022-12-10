@@ -1,6 +1,5 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { Button, createStyles, Paper, Title } from "@mantine/core";
-import { LoginLayout } from "@layouts/LoginLayout";
+import { LoginLayout } from "@layouts/guest/LoginLayout";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -20,10 +19,6 @@ const useStyles = createStyles((theme) => ({
     },
   },
 }));
-
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   //
-// };
 
 export default function Login() {
   //   props: InferGetServerSidePropsType<typeof getServerSideProps>

@@ -3,7 +3,7 @@ import Head from "next/head";
 import { AppShell, createStyles } from "@mantine/core";
 import { Header } from "@ui/Header";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   wrapper: {
     backgroundImage: `url(https://unsplash.it/2000/2000)`,
     height: "100vh",

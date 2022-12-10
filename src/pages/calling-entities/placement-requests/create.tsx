@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
-import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { CallingEntityLayout } from "@layouts/authed/CallingEntityLayout";
 import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
 import {
@@ -16,7 +16,6 @@ import { SocialSecurityContribution } from "@enums/social-security-contribution"
 import { useNotify } from "@hooks/useNotify";
 import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 import { zodResolver } from "@mantine/form";
-import { getTRPCServerProxy } from "@server/get-trpc-ssg";
 import { guarded } from "@server/guarded";
 
 const useStyles = createStyles((theme) => ({
@@ -121,15 +120,15 @@ export default function CallingEntitiesPlacementRequestsCreate() {
 
   if (!entity || !session)
     return (
-      <CallingEntityDashboardLayout title="Calling Entity Placement Request">
+      <CallingEntityLayout title="Calling Entity Placement Request">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CallingEntityDashboardLayout>
+      </CallingEntityLayout>
     );
 
   return (
-    <CallingEntityDashboardLayout
+    <CallingEntityLayout
       title="Calling Entity Placement Request"
       image={session.user?.image ?? ""}
     >
@@ -168,6 +167,6 @@ export default function CallingEntitiesPlacementRequestsCreate() {
           </Button>
         </form>
       </main>
-    </CallingEntityDashboardLayout>
+    </CallingEntityLayout>
   );
 }

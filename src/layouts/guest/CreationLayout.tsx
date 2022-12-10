@@ -8,7 +8,7 @@ interface Props {
   children: ReactNode;
 }
 
-export function CandidateCreationLayout(props: Props) {
+export function CreationLayout(props: Props) {
   return (
     <>
       <Head>

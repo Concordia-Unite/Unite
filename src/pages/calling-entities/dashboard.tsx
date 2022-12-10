@@ -2,7 +2,7 @@ import type { GetServerSideProps } from "next";
 import { createStyles, Loader, Title } from "@mantine/core";
 import { useSession } from "next-auth/react";
 import { trpc } from "@services/trpc";
-import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { CallingEntityLayout } from "@layouts/authed/CallingEntityLayout";
 import { assertHasCallingEntity } from "@server/guards/has-calling-entity";
 import { guarded } from "@server/guarded";
 
@@ -38,20 +38,20 @@ export default function Dashboard() {
 
   if (!entity || !session)
     return (
-      <CallingEntityDashboardLayout title="Calling Entity Dashboard">
+      <CallingEntityLayout title="Calling Entity Dashboard">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CallingEntityDashboardLayout>
+      </CallingEntityLayout>
     );
 
   return (
-    <CallingEntityDashboardLayout
+    <CallingEntityLayout
       image={session.user?.image ?? ""}
       title={`${entity.name} Dashboard`}
     >
       <Title order={1}>Dashboard</Title>
       <Title order={4}>For {entity.name}</Title>
-    </CallingEntityDashboardLayout>
+    </CallingEntityLayout>
   );
 }

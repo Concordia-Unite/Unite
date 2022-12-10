@@ -2,7 +2,7 @@ import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
 import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
-import { DistrictDashboardLayout } from "@layouts/DistrictDashboardLayout";
+import { DistrictLayout } from "@layouts/authed/DistrictLayout";
 import {
   creationFormValidator,
   MembershipTable,
@@ -73,15 +73,15 @@ export default function Members() {
 
   if (!district || !session)
     return (
-      <DistrictDashboardLayout title="Calling Entity Members">
+      <DistrictLayout title="Calling Entity Members">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </DistrictDashboardLayout>
+      </DistrictLayout>
     );
 
   return (
-    <DistrictDashboardLayout
+    <DistrictLayout
       title={`${district.name} Members List`}
       image={session.user?.image ?? ""}
     >
@@ -106,6 +106,6 @@ export default function Members() {
           }
         />
       </main>
-    </DistrictDashboardLayout>
+    </DistrictLayout>
   );
 }

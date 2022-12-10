@@ -1,9 +1,8 @@
 import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title } from "@mantine/core";
 import { trpc } from "@services/trpc";
-import { useNotify } from "@hooks/useNotify";
 import { useSession } from "next-auth/react";
-import { CallingEntityDashboardLayout } from "@layouts/CallingEntityDashboardLayout";
+import { CallingEntityLayout } from "@layouts/authed/CallingEntityLayout";
 import {
   creationFormValidator,
   MembershipTable,
@@ -75,15 +74,15 @@ export default function Members() {
 
   if (!entity || !session)
     return (
-      <CallingEntityDashboardLayout title="Calling Entity Members">
+      <CallingEntityLayout title="Calling Entity Members">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CallingEntityDashboardLayout>
+      </CallingEntityLayout>
     );
 
   return (
-    <CallingEntityDashboardLayout
+    <CallingEntityLayout
       title={`${entity.name} Members List`}
       image={session.user?.image ?? ""}
     >
@@ -108,6 +107,6 @@ export default function Members() {
           }
         />
       </main>
-    </CallingEntityDashboardLayout>
+    </CallingEntityLayout>
   );
 }

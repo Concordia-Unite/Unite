@@ -31,7 +31,7 @@ interface Props {
   children: ReactNode;
 }
 
-export function CandidateDashboardLayout(props: Props) {
+export function CandidateLayout(props: Props) {
   const { classes } = useStyles();
   const router = useRouter();
 

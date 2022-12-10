@@ -2,7 +2,7 @@ import type { GetServerSideProps } from "next";
 import { Button, createStyles, Loader, Title, Text } from "@mantine/core";
 import { useSession } from "next-auth/react";
 import { trpc } from "@services/trpc";
-import { CandidateDashboardLayout } from "@layouts/CandidateDashboardLayout";
+import { CandidateLayout } from "@layouts/authed/CandidateLayout";
 import {
   PersonalInfoInput,
   usePreFilledUpdateForm,
@@ -74,18 +74,15 @@ export default function Settings() {
 
   if (!candidate)
     return (
-      <CandidateDashboardLayout title="Settings">
+      <CandidateLayout title="Settings">
         <main className={classes.loader}>
           <Loader variant="bars" size={"xl"} />
         </main>
-      </CandidateDashboardLayout>
+      </CandidateLayout>
     );
 
   return (
-    <CandidateDashboardLayout
-      title="Settings"
-      image={candidate.user.image ?? ""}
-    >
+    <CandidateLayout title="Settings" image={candidate.user.image ?? ""}>
       <main className={classes.layout}>
         <Title order={1}>Settings</Title>
         <form
@@ -119,6 +116,6 @@ export default function Settings() {
           </Button>
         </form>
       </main>
-    </CandidateDashboardLayout>
+    </CandidateLayout>
   );
 }

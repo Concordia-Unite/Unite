@@ -4,7 +4,7 @@ import { createStyles, Loader, Title } from "@mantine/core";
 import { assertMemberOfDistrict } from "@server/guards/member-of-district";
 import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
-import { DistrictDashboardLayout } from "@layouts/DistrictDashboardLayout";
+import { DistrictLayout } from "@layouts/authed/DistrictLayout";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -32,20 +32,20 @@ export default function DistrictsDashboard(
 
   if (!district || !session)
     return (
-      <DistrictDashboardLayout title="District Dashboard">
+      <DistrictLayout title="District Dashboard">
         <main className={classes.loader}>
           <Loader />
         </main>
-      </DistrictDashboardLayout>
+      </DistrictLayout>
     );
 
   return (
-    <DistrictDashboardLayout
+    <DistrictLayout
       title={`${district.name} District Dashboard`}
       image={session.user?.image ?? ""}
     >
       <Title order={1}>Dashboard</Title>
       <Title order={5}>For {district.name} District</Title>
-    </DistrictDashboardLayout>
+    </DistrictLayout>
   );
 }

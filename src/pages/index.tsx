@@ -1,6 +1,5 @@
-import { type NextPage } from "next";
 import { createStyles, Text, Title } from "@mantine/core";
-import { HomeLayout } from "@layouts/HomeLayout";
+import { HomeLayout } from "@layouts/guest/HomeLayout";
 import { Hero } from "@features/homepage";
 
 const useStyles = createStyles((theme) => ({
@@ -42,7 +41,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const Home: NextPage = () => {
+export default function Home() {
   const { classes } = useStyles();
   return (
     <HomeLayout title="Concordia Unite">
@@ -61,6 +60,4 @@ const Home: NextPage = () => {
       </Hero>
     </HomeLayout>
   );
-};
-
-export default Home;
+}
