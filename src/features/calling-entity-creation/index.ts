@@ -1,6 +1,13 @@
-/* Calling-entity-creation
+/*
 
-Creation of Calling Entities
+Calling Entity Creation
+=======================
+
+This feature allows for creation of Calling Entities through
+the form provided on the `useCreationForm` hook. Components
+exported from this feature are used to implement the form.
+A zod validator is exported as well, of which the form is 
+derived.
 
 */
 

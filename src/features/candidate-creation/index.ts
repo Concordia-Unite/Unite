@@ -1,6 +1,11 @@
 /* Candidate Creation
 
-A feature that implements Candidate Creation through forms.
+Candidate Creation
+==================
+
+This feature implements Candidate Creation through the use of a form,
+as well as a component. The form used is pre-filled with the current user's
+login info, making the experience easier.
 
 */
 

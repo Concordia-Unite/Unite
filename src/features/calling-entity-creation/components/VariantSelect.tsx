@@ -1,16 +1,26 @@
-import { Variant } from "@enums/variant";
-import { createStyles, Select } from "@mantine/core";
+/**
+ * VariantSelect.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Variant Select Component
+ */
+
+// Imports
 import type { UseFormReturnType } from "@mantine/form";
 import type { CreationForm } from "../lib/creation-form";
-
-const useStyles = createStyles((theme) => ({
-  //
-}));
+import { Variant } from "@enums/variant";
+import { Select } from "@mantine/core";
 
 interface Props {
   form: UseFormReturnType<CreationForm>;
 }
 
+/**
+ * ### VariantSelect
+ * This form component is for entering the Calling Entity's variant or type.
+ * It should be used with the provided creation form in this feature.
+ */
 export function VariantSelect(props: Props) {
   return (
     <>

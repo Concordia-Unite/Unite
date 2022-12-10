@@ -1,3 +1,12 @@
+/**
+ * Header.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * AppShell Header for Layouts
+ */
+
+// Imports
 import { createStyles, Title } from "@mantine/core";
 import { Header as BaseHeader } from "@mantine/core";
 
@@ -11,6 +20,11 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+/**
+ * ### Header
+ * This header is used in guest layouts. It includes the application name
+ * and that is it.
+ */
 export function Header() {
   const { classes } = useStyles();
   return (

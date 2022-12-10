@@ -1,4 +1,12 @@
-// components/RouterTransition.tsx
+/**
+ * RouterTransition.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Sourced from Mantine Docs
+ */
+
+// Imports
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import {
@@ -7,6 +15,10 @@ import {
   NavigationProgress,
 } from "@mantine/nprogress";
 
+/**
+ * ### RouterTransition
+ * Wraps Mantine's NavigationProgress Component to work on Next.js Navigation Links.
+ */
 export function RouterTransition() {
   const router = useRouter();
 

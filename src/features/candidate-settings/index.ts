@@ -1,6 +1,11 @@
 /* Candidate-settings
 
-Candidate Settings Page
+Candidate Settings
+==================
+
+Candidate can update their settings, and this implements that feature.
+Included is a prefilled form with the current data of the candidate,
+an update form, and a validator for that update form.
 
 */
 

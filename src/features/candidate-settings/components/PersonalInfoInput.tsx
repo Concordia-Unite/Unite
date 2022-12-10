@@ -1,6 +1,15 @@
-import { Switch, TextInput } from "@mantine/core";
+/**
+ * PersonalInfoInput.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Candidate Settings Update Input
+ */
+
+// Imports
 import type { UseFormReturnType } from "@mantine/form";
 import type { UpdateForm } from "../lib/update-form";
+import { Switch, TextInput } from "@mantine/core";
 
 interface Props<T> {
   name?: string;
