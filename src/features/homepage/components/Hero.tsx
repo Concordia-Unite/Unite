@@ -1,6 +1,15 @@
+/**
+ * Hero.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Adapted from Mantine UI
+ */
+
+// Imports
+import type { ReactNode } from "react";
 import { createStyles, Button } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import type { ReactNode } from "react";
 
 const useStyles = createStyles((theme) => ({
   hero: {

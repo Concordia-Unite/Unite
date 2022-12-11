@@ -1,3 +1,12 @@
+/**
+ * MembershipRow.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Display for a single Member in a MembershipTable.
+ */
+
+// Imports
 import { Role } from "@enums/role";
 import {
   Avatar,
@@ -54,7 +63,14 @@ interface Props {
   onMemberDelete: (userId: string) => void;
 }
 
-const updateConfirmModel = (
+/**
+ * Modal for confirming the updating of a member's role.
+ * @param name The name of the Member
+ * @param role The role to update the member to
+ * @param userId the Id of the user
+ * @param onConfirm What to do on confirm
+ */
+const updateModal = (
   name: string,
   role: string,
   userId: string,
@@ -72,7 +88,13 @@ const updateConfirmModel = (
   });
 };
 
-const deleteConfirmModal = (
+/**
+ * Modal for confirming the deletion of a member.
+ * @param name The name of the Member
+ * @param userId the Id of the user
+ * @param onConfirm What to do on confirm
+ */
+const deleteModal = (
   name: string,
   userId: string,
   onConfirm: Props["onMemberDelete"]
@@ -85,6 +107,11 @@ const deleteConfirmModal = (
   });
 };
 
+/**
+ * ### MembershipRow
+ *
+ * Displays a member with a dropdown to change the role, and a delete button.
+ */
 export function MembershipRow(props: Props) {
   const { classes } = useStyles();
   return (
@@ -104,7 +131,7 @@ export function MembershipRow(props: Props) {
           disabled={props.member.role === Role.Member.valueOf()}
           onChange={(e) =>
             e
-              ? updateConfirmModel(
+              ? updateModal(
                   props.member.user.name ?? "Person",
                   e,
                   props.member.user.id,
@@ -119,7 +146,7 @@ export function MembershipRow(props: Props) {
           className={classes.deleteBtn}
           variant="outline"
           onClick={() =>
-            deleteConfirmModal(
+            deleteModal(
               props.member.user.name ?? "Person",
               props.member.user.id,
               props.onMemberDelete

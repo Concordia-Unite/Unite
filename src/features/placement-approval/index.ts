@@ -1,6 +1,10 @@
-/* District-placement-approval
+/* 
 
-District Placement Approval
+Placement Approval
+==================
+
+This feature handles the ability to approve and deny placement requests.
+This follows the Synod bylaws. It is implemented for both Universities and Districts.
 
 */
 

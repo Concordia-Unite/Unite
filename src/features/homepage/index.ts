@@ -1,6 +1,9 @@
-/* Homepage
+/* 
 
-Home Page Components and Tools
+Homepage
+========
+
+Home Page for the website. This is for features dedicated to just that.
 
 */
 

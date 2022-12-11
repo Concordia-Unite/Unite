@@ -1,6 +1,11 @@
-/* Calling-entities-membership
+/* 
 
-Creating, Updating, and Displaying Calling Entity Members
+Membership
+==========
+
+Handles the updating, creating, displaying, and deleting of members for
+universities, districts, and calling entities. This includes a few custom
+notification hooks, as well as a Zod validator.
 
 */
 

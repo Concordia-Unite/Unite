@@ -1,7 +1,16 @@
-import {
-  type GetServerSidePropsContext,
-  type GetServerSidePropsResult,
-  type GetServerSideProps,
+/**
+ * guarded.ts
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Guard Wrapper
+ */
+
+// Imports
+import type {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+  GetServerSideProps,
 } from "next";
 import { z } from "zod";
 import { getTRPCServerProxy, type TRPCServerProxy } from "./get-trpc-ssg";
@@ -19,6 +28,15 @@ const guardResultParser = z.discriminatedUnion("didPass", [
 export type GuardResult = z.infer<typeof guardResultParser>;
 export type Guard = (arg0: { ssg: TRPCServerProxy }) => Promise<GuardResult>;
 
+/**
+ * guarded allows guards to be declaratively applied to a server rendering process.
+ * Guards must implement the Guard type. They are invoked in the order provided, and
+ * are handled in that order as well. The provided function is the "happy path", where
+ * if all the guards pass, it should do this.
+ * @param guards A List of Guards to apply
+ * @param f The "happy path" function
+ * @returns A GetServerSideProps compatible function
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const guarded = <T extends { [key: string]: any }>(
   guards: Guard[],

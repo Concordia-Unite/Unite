@@ -1,10 +1,19 @@
-import { ActionIcon, createStyles } from "@mantine/core";
+/**
+ * RequestRow.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Placement Request Row
+ */
+
+// Imports
 import type {
   DistrictPlacementRequest,
   Grade,
   PlacementRequest,
   UniversityPlacementRequest,
 } from "@prisma/client";
+import { ActionIcon, createStyles } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({
@@ -32,6 +41,11 @@ interface Props {
   onDenied: (placementRequestId: number) => void;
 }
 
+/**
+ * ### RequestRow
+ *
+ * This handles the display of a single Request, and handles the display of success or failure.
+ */
 export function RequestRow(props: Props) {
   const { classes, theme } = useStyles();
   return (

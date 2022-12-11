@@ -16,6 +16,12 @@ interface Props<T> {
   form: UseFormReturnType<T>;
 }
 
+/**
+ * ### PersonalInfoInput
+ *
+ * The counterpart to the candidate creation input, this is for updating the
+ * candidate through settings.
+ */
 export function PersonalInfoInput<T extends UpdateForm>(props: Props<T>) {
   return (
     <>

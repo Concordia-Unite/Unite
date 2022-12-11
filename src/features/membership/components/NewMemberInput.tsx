@@ -1,10 +1,19 @@
-import { Role } from "@enums/role";
-import { createStyles, NativeSelect, Select, TextInput } from "@mantine/core";
-import type { UseFormReturnType } from "@mantine/form";
-import { IconAt } from "@tabler/icons";
-import type { CreationForm } from "../lib/creation-form";
+/**
+ * NewMembershipInput.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * New Membership Form Component
+ */
 
-const useStyles = createStyles((theme) => ({
+// Imports
+import type { CreationForm } from "../lib/creation-form";
+import type { UseFormReturnType } from "@mantine/form";
+import { Role } from "@enums/role";
+import { createStyles, Select, TextInput } from "@mantine/core";
+import { IconAt } from "@tabler/icons";
+
+const useStyles = createStyles(() => ({
   textbox: {
     width: "20vw",
     marginRight: "1em",
@@ -19,6 +28,12 @@ interface Props {
   form: UseFormReturnType<CreationForm>;
 }
 
+/**
+ * ### NewMembershipInput
+ *
+ * This is the form for creating new members
+ * It should be used with the provided form.
+ */
 export function NewMemberInput(props: Props) {
   const { classes } = useStyles();
   return (

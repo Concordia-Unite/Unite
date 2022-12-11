@@ -1,13 +1,22 @@
-import { createStyles, Table } from "@mantine/core";
+/**
+ * RequestTable.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Placement Request Display Table
+ */
+
+// Imports
 import type {
   DistrictPlacementRequest,
   Grade,
   PlacementRequest,
   UniversityPlacementRequest,
 } from "@prisma/client";
+import { createStyles, Table } from "@mantine/core";
 import { RequestRow } from "./RequestRow";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   tableLayout: {
     width: "70vw",
     marginLeft: "auto",
@@ -31,6 +40,11 @@ interface Props {
   onDenied: (placementRequestId: number) => void;
 }
 
+/**
+ * ### RequestTable
+ *
+ * A table to display placement requests. This allows for approval and denial of requests.
+ */
 export function RequestTable(props: Props) {
   const { classes } = useStyles();
   return (

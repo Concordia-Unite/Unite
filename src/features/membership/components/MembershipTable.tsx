@@ -1,14 +1,23 @@
-import type { Role } from "@enums/role";
-import { createStyles, Table } from "@mantine/core";
+/**
+ * MembershipTable.tsx
+ * Ian Kollipara
+ * 2022.12.10
+ *
+ * Display of all the members in an organized table
+ */
+
+// Imports
 import type {
   CallingEntityMembership,
   DistrictMembership,
   UniversityMembership,
   User,
 } from "@prisma/client";
+import type { Role } from "@enums/role";
+import { createStyles, Table } from "@mantine/core";
 import { MembershipRow } from "./MembershipRow";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   tableLayout: {
     width: "70vw",
     marginLeft: "auto",
@@ -28,6 +37,11 @@ interface Props {
   onMemberRoleUpdate: (userId: string, role: Role) => void;
 }
 
+/**
+ * ### MembershipTable
+ *
+ * This displays the members in an organized table
+ */
 export function MembershipTable(props: Props) {
   const { classes } = useStyles();
   return (
