@@ -38,6 +38,7 @@ interface Props {
   })[];
   onApprove: (placementRequestId: number) => void;
   onDenied: (placementRequestId: number) => void;
+  onRowClick: (placementRequestId: number) => void;
 }
 
 /**
@@ -61,6 +62,7 @@ export function RequestTable(props: Props) {
         <tbody>
           {props.placementRequests.map((request) => (
             <RequestRow
+              onRowClick={props.onRowClick}
               key={request.id}
               placementRequest={request}
               onApprove={props.onApprove}

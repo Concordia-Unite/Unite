@@ -26,7 +26,10 @@ const guardResultParser = z.discriminatedUnion("didPass", [
 ]);
 
 export type GuardResult = z.infer<typeof guardResultParser>;
-export type Guard = (arg0: { ssg: TRPCServerProxy }) => Promise<GuardResult>;
+export type Guard = (arg0: {
+  ssg: TRPCServerProxy;
+  ctx: GetServerSidePropsContext;
+}) => Promise<GuardResult>;
 
 /**
  * guarded allows guards to be declaratively applied to a server rendering process.
@@ -48,7 +51,7 @@ export const guarded = <T extends { [key: string]: any }>(
   return async (ctx) => {
     const ssg = await getTRPCServerProxy(ctx);
     for (const guard of guards) {
-      const result = await guard({ ssg });
+      const result = await guard({ ssg, ctx });
       if (!result.didPass) {
         return {
           redirect: { ...result.redirect, permanent: false },

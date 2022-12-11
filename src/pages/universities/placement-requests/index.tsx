@@ -9,6 +9,7 @@ import { useNotify } from "@hooks/useNotify";
 import { PlacementRequestStatus } from "@enums/placement-request-status";
 import { assertMemberOfUniversity } from "@server/guards/member-of-university";
 import { UniversityLayout } from "@layouts/authed/UniversityLayout";
+import { useRouter } from "next/router";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -54,6 +55,7 @@ const denyModal = (requestId: number, onConfirm: () => void) =>
 export default function DistrictsPlacementRequests() {
   const { data: session } = useSession({ required: true });
   const { classes } = useStyles();
+  const router = useRouter();
   const denyNotify = useNotify({
     loading: "Request is being denied...",
     success: "Request successfully denied",
@@ -84,6 +86,9 @@ export default function DistrictsPlacementRequests() {
     >
       <Title order={1}>Placement Requests</Title>
       <RequestTable
+        onRowClick={(id) =>
+          router.push(`/universities/placement-requests/${id}`)
+        }
         placementRequests={university.requests.filter(
           (request) =>
             request.status === PlacementRequestStatus.Pending.valueOf()

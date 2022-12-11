@@ -45,7 +45,7 @@ export function usePreFilledUpdateForm(args: UsePreFilledUpdateFormArgs) {
         profilePictureUrl: args.candidate.user.image ?? "",
       });
     }
-  }, [args.candidate, form]);
+  }, []);
 
   return form;
 }

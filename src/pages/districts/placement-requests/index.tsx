@@ -84,6 +84,9 @@ export default function DistrictsPlacementRequests() {
     >
       <Title order={1}>Placement Requests</Title>
       <RequestTable
+        onRowClick={() => {
+          return;
+        }}
         placementRequests={district.requests.filter(
           (request) =>
             request.status === PlacementRequestStatus.Pending.valueOf()

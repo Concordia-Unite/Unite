@@ -15,6 +15,7 @@ import type {
 } from "@prisma/client";
 import { ActionIcon, createStyles } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons";
+import { useHover } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   rowHover: {
@@ -39,6 +40,7 @@ interface Props {
   };
   onApprove: (placementRequestId: number) => void;
   onDenied: (placementRequestId: number) => void;
+  onRowClick: (placementRequestId: number) => void;
 }
 
 /**
@@ -48,9 +50,18 @@ interface Props {
  */
 export function RequestRow(props: Props) {
   const { classes, theme } = useStyles();
+  const { ref, hovered } = useHover<HTMLTableCellElement>();
   return (
     <>
-      <tr key={props.placementRequest.id} className={classes.rowHover}>
+      <tr
+        key={props.placementRequest.id}
+        className={classes.rowHover}
+        onClick={
+          hovered
+            ? undefined
+            : () => props.onRowClick(props.placementRequest.id)
+        }
+      >
         <td>{props.placementRequest.placementRequest.requestee.name}</td>
         <td>{props.placementRequest.placementRequest.positionPosition}</td>
         <td>
@@ -58,7 +69,7 @@ export function RequestRow(props: Props) {
             .map((grade) => grade.grade)
             .join(", ")}
         </td>
-        <td className={classes.actionBtns}>
+        <td className={classes.actionBtns} ref={ref}>
           <ActionIcon
             mr={"md"}
             onClick={() =>
