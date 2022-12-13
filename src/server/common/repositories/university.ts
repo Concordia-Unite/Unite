@@ -1,3 +1,4 @@
+import { CallStatus } from "@enums/call-status";
 import type { PlacementRequestStatus } from "@enums/placement-request-status";
 import type { Role } from "@enums/role";
 import type { PrismaClient } from "@prisma/client";
@@ -100,21 +101,34 @@ export class UniversityRepo {
   }
 
   public async deleteMember(userId: string) {
-    return await this.client.universityMembership.delete({
-      where: {
-        userId,
-      },
-    });
+    return await this.client.universityMembership.delete({ where: { userId } });
   }
 
   public async getMembers(universityId: number) {
     return await this.client.universityMembership.findMany({
+      where: { universityId },
+      include: { user: true },
+    });
+  }
+
+  public async getAllCalls(universityId: number) {
+    return await this.client.call.findMany({
       where: {
-        universityId,
+        candidate: { universityId },
       },
       include: {
-        user: true,
+        candidate: { include: { user: true } },
+        placementRequest: {
+          include: { requestee: { include: { district: true } } },
+        },
       },
+    });
+  }
+
+  public async updateCall(callId: number, status: CallStatus) {
+    return await this.client.call.update({
+      where: { id: callId },
+      data: { status },
     });
   }
 }

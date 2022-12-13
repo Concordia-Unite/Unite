@@ -1,7 +1,5 @@
-import { createStyles, Table, Text, Title } from "@mantine/core";
+import { Paper, Table, Text, Title } from "@mantine/core";
 import type { RouterOutputs } from "@services/trpc";
-
-const useStyles = createStyles((theme) => ({}));
 
 interface Props {
   placementRequest: NonNullable<RouterOutputs["placementRequest"]["getById"]>;
@@ -18,10 +16,7 @@ export function PlacementRequestDetail(props: Props) {
         From {props.placementRequest.requestee.name} -{" "}
         {props.placementRequest.requestee.variant.valueOf()}
       </Title>
-      <Text
-        dangerouslySetInnerHTML={{ __html: props.placementRequest.description }}
-      />
-      <Table highlightOnHover withColumnBorders>
+      <Table highlightOnHover withColumnBorders withBorder>
         <thead>
           <tr>
             <th>Name</th>
@@ -54,6 +49,13 @@ export function PlacementRequestDetail(props: Props) {
           <tr></tr>
         </tbody>
       </Table>
+      <Paper px="md" mt={"md"} withBorder shadow={"sm"}>
+        <Text
+          dangerouslySetInnerHTML={{
+            __html: props.placementRequest.description,
+          }}
+        />
+      </Paper>
     </>
   );
 }

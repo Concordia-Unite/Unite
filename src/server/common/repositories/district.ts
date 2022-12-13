@@ -1,3 +1,4 @@
+import { CallStatus } from "@enums/call-status";
 import { type PlacementRequestStatus } from "@enums/placement-request-status";
 import { type Role } from "@enums/role";
 import type { PrismaClient } from "@prisma/client";
@@ -111,6 +112,27 @@ export class DistrictRepo {
       include: {
         user: true,
       },
+    });
+  }
+
+  public async getAllCalls(districtId: number) {
+    return await this.client.call.findMany({
+      where: {
+        candidate: { districtId },
+      },
+      include: {
+        candidate: { include: { user: true } },
+        placementRequest: {
+          include: { requestee: { include: { district: true } } },
+        },
+      },
+    });
+  }
+
+  public async updateCall(callId: number, status: CallStatus) {
+    return await this.client.call.update({
+      where: { id: callId },
+      data: { status },
     });
   }
 }

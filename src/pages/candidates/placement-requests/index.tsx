@@ -1,6 +1,13 @@
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { guarded } from "@server/guarded";
-import { Button, createStyles, Loader, ScrollArea, Title } from "@mantine/core";
+import {
+  Button,
+  createStyles,
+  Loader,
+  ScrollArea,
+  Title,
+  Text,
+} from "@mantine/core";
 import { assertCandidateDoesExist } from "@server/guards/candidate-does-exist";
 import { trpc } from "@services/trpc";
 import { useSession } from "next-auth/react";
@@ -15,6 +22,8 @@ import {
 import { zodResolver } from "@mantine/form";
 import { useDistricts } from "@hooks/useDistricts";
 import { useRouter } from "next/router";
+import { useNotify } from "@hooks/useNotify";
+import { openConfirmModal } from "@mantine/modals";
 
 const useStyles = createStyles((theme) => ({
   loader: {
@@ -61,18 +70,37 @@ export const getServerSideProps: GetServerSideProps = guarded(
   }
 );
 
+const confirmModal = (onConfirm: () => void) => {
+  openConfirmModal({
+    title: "Begin Call?",
+    children: (
+      <Text>Do you want to begin a call with this Calling Entity?</Text>
+    ),
+    labels: { confirm: "Yes", cancel: "No" },
+    onConfirm,
+  });
+};
 export default function CandidatesPlacementRequestsIndex(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
   useSession({ required: true });
   const { classes } = useStyles();
   const { data: candidate } = trpc.candidate.getCurrent.useQuery();
-  const { data: requests, isLoading } =
-    trpc.candidate.getAllPlacementRequests.useQuery();
+  const {
+    data: requests,
+    isLoading,
+    refetch,
+  } = trpc.candidate.getAllPlacementRequests.useQuery();
   const form = useSearchForm({
     validate: zodResolver(searchValidator),
   });
   const { districts } = useDistricts();
+  const { mutateAsync: beginCall } = trpc.candidate.createCall.useMutation();
+  const notify = useNotify({
+    loading: "Your interest is being expressed...",
+    success: "Your interest has been recorded, check back in later!",
+    failure: "Something went wrong",
+  });
   const router = useRouter();
   const getResults = useSearchParams({ form, requests: requests ?? [] });
 
@@ -115,7 +143,11 @@ export default function CandidatesPlacementRequestsIndex(
             onRowClick={(requestId) =>
               router.push(`/candidates/placement-requests/${requestId}`)
             }
-            onCallClick={() => ({})}
+            onCallClick={(requestId) =>
+              confirmModal(() =>
+                notify(beginCall({ requestId })).then(() => refetch())
+              )
+            }
           />
         </ScrollArea>
       </main>

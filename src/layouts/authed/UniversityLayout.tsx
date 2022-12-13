@@ -4,6 +4,7 @@ import { AppShell, Avatar, createStyles, Navbar } from "@mantine/core";
 import { useRouter } from "next/router";
 import { NavbarLink } from "@ui/NavbarLink";
 import {
+  IconClipboardList,
   IconHome2,
   IconList,
   IconLogout,
@@ -64,6 +65,11 @@ export function UniversityLayout(props: Props) {
                 icon={IconList}
                 label="Placement Requests"
                 onClick={() => router.push("/universities/placement-requests")}
+              />
+              <NavbarLink
+                icon={IconClipboardList}
+                label="Calls"
+                onClick={() => router.push("/universities/calls")}
               />
               <NavbarLink
                 icon={IconSettings}

@@ -1,6 +1,8 @@
 export enum CallStatus {
-  Expressed = "expressed",
-  Declined = "declined",
-  Extended = "extended",
-  Accepted = "accepted",
+  Expressed = "Expressed",
+  Declined = "Declined",
+  Extended = "Extended",
+  Accepted = "Accepted",
+  Pushed = "Pushed",
+  Blocked = "Blocked",
 }

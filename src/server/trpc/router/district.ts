@@ -1,3 +1,4 @@
+import { CallStatus } from "@enums/call-status";
 import { PlacementRequestStatus } from "@enums/placement-request-status";
 import { Role } from "@enums/role";
 import { DistrictRepo } from "@server/repositories/district";
@@ -92,5 +93,26 @@ export const districtRouter = router({
           input.role
         );
       }
+    }),
+  getAllCalls: protectedProcedure.query(async ({ ctx }) => {
+    const repo = new DistrictRepo(ctx.prisma);
+
+    return await repo.getAllCalls(
+      (await repo.getByUserId(ctx.session.user.id))?.id ?? -1
+    );
+  }),
+
+  updateCallStatus: protectedProcedure
+    .input(
+      z.object({
+        callId: z.number(),
+        status: z.nativeEnum(CallStatus),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await new DistrictRepo(ctx.prisma).updateCall(
+        input.callId,
+        input.status
+      );
     }),
 });

@@ -1,5 +1,6 @@
 import { router } from "../trpc";
 import { authRouter } from "./auth";
+import { callRouter } from "./call";
 import { callingEntityRouter } from "./calling-entity";
 import { candidateRouter } from "./candidate";
 import { districtRouter } from "./district";
@@ -9,6 +10,7 @@ import { universityRouter } from "./university";
 export const appRouter = router({
   auth: authRouter,
   callingEntity: callingEntityRouter,
+  call: callRouter,
   candidate: candidateRouter,
   district: districtRouter,
   university: universityRouter,

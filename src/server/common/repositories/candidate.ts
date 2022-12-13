@@ -1,3 +1,4 @@
+import { CallStatus } from "@enums/call-status";
 import type { PrismaClient } from "@prisma/client";
 
 export class CandidateRepo {
@@ -121,6 +122,15 @@ export class CandidateRepo {
             },
           },
         ],
+        NOT: [
+          {
+            calls: {
+              some: {
+                candidateId: currentCandidate?.id,
+              },
+            },
+          },
+        ],
       },
       include: {
         calls: true,
@@ -130,6 +140,24 @@ export class CandidateRepo {
           },
         },
         grades: true,
+      },
+    });
+  }
+
+  public async createCall(userId: string, requestId: number) {
+    return await this.client.call.create({
+      data: {
+        candidate: {
+          connect: {
+            userId,
+          },
+        },
+        placementRequest: {
+          connect: {
+            id: requestId,
+          },
+        },
+        status: CallStatus.Expressed,
       },
     });
   }

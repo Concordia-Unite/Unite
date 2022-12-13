@@ -68,4 +68,17 @@ export const candidateRouter = router({
       ctx.session.user.id
     );
   }),
+
+  createCall: protectedProcedure
+    .input(
+      z.object({
+        requestId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return await new CandidateRepo(ctx.prisma).createCall(
+        ctx.session.user.id,
+        input.requestId
+      );
+    }),
 });
