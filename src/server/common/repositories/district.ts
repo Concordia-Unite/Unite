@@ -1,4 +1,4 @@
-import { CallStatus } from "@enums/call-status";
+import type { CallStatus } from "@enums/call-status";
 import { type PlacementRequestStatus } from "@enums/placement-request-status";
 import { type Role } from "@enums/role";
 import type { PrismaClient } from "@prisma/client";
@@ -118,7 +118,7 @@ export class DistrictRepo {
   public async getAllCalls(districtId: number) {
     return await this.client.call.findMany({
       where: {
-        candidate: { districtId },
+        candidate: { districtId: districtId ?? -1 },
       },
       include: {
         candidate: { include: { user: true } },

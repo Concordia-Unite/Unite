@@ -122,7 +122,10 @@ export default function UniversitiesCallsId(
     );
 
   return (
-    <UniversityLayout title={`University Call ${call.id}`}>
+    <UniversityLayout
+      image={session.user?.image ?? ""}
+      title={`University Call ${call.id}`}
+    >
       <main className={classes.main}>
         <section className={classes.btnLayout}>
           <LinkButton href="/universities/calls" leftIcon={<IconArrowLeft />}>
