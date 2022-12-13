@@ -61,4 +61,11 @@ export const candidateRouter = router({
         );
       }
     }),
+
+  // TODO: Switch to Subscription and use of websockets
+  getAllPlacementRequests: protectedProcedure.query(async ({ ctx }) => {
+    return await new CandidateRepo(ctx.prisma).getAllPlacementRequests(
+      ctx.session.user.id
+    );
+  }),
 });

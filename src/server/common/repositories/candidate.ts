@@ -58,7 +58,7 @@ export class CandidateRepo {
     } else {
       return await this.client.candidate.update({
         where: {
-          id: candidateId,
+          userId,
         },
         data: {
           districtId: districtId,
@@ -97,6 +97,39 @@ export class CandidateRepo {
       include: {
         user: true,
         district: true,
+      },
+    });
+  }
+
+  public async getAllPlacementRequests(userId: string) {
+    const currentCandidate = await this.client.candidate.findUnique({
+      where: { userId },
+    });
+    return await this.client.placementRequest.findMany({
+      where: {
+        OR: [
+          {
+            districtPlacementRequest: {
+              id: currentCandidate?.districtId ?? -1,
+            },
+          },
+          {
+            universityPlacementRequests: {
+              some: {
+                id: currentCandidate?.universityId ?? -1,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        calls: true,
+        requestee: {
+          include: {
+            district: true,
+          },
+        },
+        grades: true,
       },
     });
   }
