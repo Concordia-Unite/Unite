@@ -193,8 +193,8 @@ model Call {
 
 model UniversityPlacementRequest {
   id                 Int              @id @default(autoincrement())
-  university         University       @relation(fields: [universityId], references: [id])
-  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  university         University       @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id], onDelete: Cascade)
   status             String
   universityId       Int
   placementRequestId Int
@@ -202,8 +202,8 @@ model UniversityPlacementRequest {
 
 model DistrictPlacementRequest {
   id                 Int              @id @default(autoincrement())
-  district           District         @relation(fields: [districtId], references: [id])
-  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id])
+  district           District         @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  placementRequest   PlacementRequest @relation(fields: [placementRequestId], references: [id], onDelete: Cascade)
   status             String
   districtId         Int
   placementRequestId Int              @unique
