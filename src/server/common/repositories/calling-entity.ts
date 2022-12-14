@@ -8,6 +8,7 @@ import type { HealthCoverage } from "@enums/health-coverage";
 import type { HealthPlan } from "@enums/health-plan";
 import type { HousingAllowanceVariant } from "@enums/housing-allowance-variant";
 import { PlacementRequestStatus } from "@enums/placement-request-status";
+import { CallStatus } from "@enums/call-status";
 
 export class CallingEntityRepo {
   public constructor(private client: PrismaClient) {}
@@ -198,6 +199,21 @@ export class CallingEntityRepo {
             status: PlacementRequestStatus.Pending,
           },
         },
+      },
+    });
+  }
+
+  async getPushedCalls(callingEntityId: number) {
+    return await this.client.call.findMany({
+      where: {
+        placementRequest: { callingEntityId },
+        status: CallStatus.Pushed,
+      },
+      include: {
+        placementRequest: {
+          include: { grades: true },
+        },
+        candidate: { include: { user: true } },
       },
     });
   }

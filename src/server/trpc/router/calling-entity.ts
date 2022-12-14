@@ -153,6 +153,8 @@ export const callingEntityRouter = router({
         input.isFullTime,
         input.salary,
         input.socialSecurityContribution,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
         input.housingAllowance,
         input.universityIds,
         input.healthCoverage ?? undefined,
